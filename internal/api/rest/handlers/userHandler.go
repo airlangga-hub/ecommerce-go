@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest"
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
+	"github.com/airlangga-hub/ecommerce-go/internal/repository"
 	"github.com/airlangga-hub/ecommerce-go/internal/service"
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,7 +18,7 @@ func SetupUserRoutes(rh *rest.HttpHandler) {
 	app := rh.App
 
 	userService := service.UserService{
-		 
+		UserRepository: repository.NewUserRepository(rh.DB),
 	}
 	handler := &UserHandler{userService}
 
