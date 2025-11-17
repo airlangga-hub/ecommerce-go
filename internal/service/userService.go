@@ -1,6 +1,8 @@
 package service
 
 import (
+	"log"
+
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 )
@@ -12,7 +14,9 @@ type UserService struct {
 
 
 func (s UserService) SignUp(input dto.UserSignUp) (string, error) {
-	return "", nil
+	log.Println(input)
+
+	return "temporary-token", nil
 }
 
 
