@@ -21,7 +21,6 @@ func StartServer(cfg config.AppConfig) {
 	}
 
 	log.Println("database connected")
-	log.Println(db)
 
 	httpHandler := rest.HttpHandler{
 		App: app,
