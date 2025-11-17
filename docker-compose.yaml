@@ -1,4 +1,3 @@
-version: "3.9"
 services:
     postgres:
         image: postgres:latest
@@ -8,7 +7,7 @@ services:
             - POSTGRES_PASSWORD=root
             - POSTGRES_DB=online-shopping
         ports:
-            - "5432:5432"
+            - "5428:5432"
         volumes:
             - db:/var/lib/postgresql/data
 
