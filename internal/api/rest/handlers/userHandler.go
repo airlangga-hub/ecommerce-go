@@ -2,19 +2,22 @@ package handlers
 
 import (
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest"
+	"github.com/airlangga-hub/ecommerce-go/internal/dto"
+	"github.com/airlangga-hub/ecommerce-go/internal/service"
 	"github.com/gofiber/fiber/v2"
 )
 
 
 type UserHandler struct {
-
+	service.UserService
 }
 
 
 func SetupUserRoutes(rh *rest.HttpHandler) {
 	app := rh.App
 
-	handler := &UserHandler{}
+	userService := service.UserService{}
+	handler := &UserHandler{userService}
 
 	// Public endpoints
 	app.Post("/register", handler.Register)
@@ -38,7 +41,18 @@ func SetupUserRoutes(rh *rest.HttpHandler) {
 
 
 func (h *UserHandler) Register(ctx *fiber.Ctx) error {
-	return ctx.Status(200).JSON(&fiber.Map{"message": "register"})
+	user := dto.UserSignUp{}
+	err := ctx.BodyParser(&user)
+	if err != nil {
+		return ctx.Status(400).JSON(&fiber.Map{"message": "please provide valid inputs for signup"})
+	}
+
+	token, err := h.SignUp(user)
+	if err != nil {
+		return ctx.Status(500).JSON(&fiber.Map{"message": "error on signup"})
+	}
+
+	return ctx.Status(200).JSON(&fiber.Map{"message": token})
 }
 
 
