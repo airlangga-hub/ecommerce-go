@@ -15,10 +15,6 @@ import (
 func StartServer(cfg config.AppConfig) {
 	app := fiber.New()
 
-	httpHandler := rest.HttpHandler{
-		App: app,
-	}
-
 	db, err := gorm.Open(postgres.Open(cfg.Dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("error connecting to db: ", err)
@@ -26,6 +22,11 @@ func StartServer(cfg config.AppConfig) {
 
 	log.Println("database connected")
 	log.Println(db)
+
+	httpHandler := rest.HttpHandler{
+		App: app,
+		DB: db,
+	}
 
 	setupRoutes(&httpHandler)
 
