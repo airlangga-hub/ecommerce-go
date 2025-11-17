@@ -1,22 +1,34 @@
 package service
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
+	"github.com/airlangga-hub/ecommerce-go/internal/repository"
 )
 
 
 type UserService struct {
-
+	repository.UserRepository
 }
 
 
 func (s UserService) SignUp(input dto.UserSignUp) (string, error) {
 	log.Println(input)
 
-	return "temporary-token", nil
+	user, err := s.CreateUser(
+		domain.User{
+			Email: input.Email,
+			Password: input.Password,
+			Phone: input.Phone,
+		},
+	)
+
+	userInfo := fmt.Sprintf("%v, %v, %v", user.ID, user.Email, user.UserType)
+
+	return userInfo, err
 }
 
 

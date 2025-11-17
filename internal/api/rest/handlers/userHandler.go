@@ -16,7 +16,9 @@ type UserHandler struct {
 func SetupUserRoutes(rh *rest.HttpHandler) {
 	app := rh.App
 
-	userService := service.UserService{}
+	userService := service.UserService{
+		 
+	}
 	handler := &UserHandler{userService}
 
 	// Public endpoints
