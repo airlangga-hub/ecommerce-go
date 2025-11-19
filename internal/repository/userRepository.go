@@ -72,7 +72,7 @@ func (ur *userRepository) UpdateUser(id uint, user domain.User) (domain.User, er
 		ID: id,
 	}
 
-	err := ur.db.Model(&u).Clauses(clause.Returning{}).Select("*").Updates(user).Error
+	err := ur.db.Model(&u).Clauses(clause.Returning{}).Updates(user).Error
 
 	if err != nil {
 		log.Println("error on update: ", err)
