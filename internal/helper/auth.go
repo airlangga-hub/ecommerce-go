@@ -88,7 +88,7 @@ func (a Auth) VerifyToken(authHeader string) (domain.User, error) {
 	)
 
 	if err != nil {
-		return domain.User{}, errors.New("error parsing token")
+		return domain.User{}, fmt.Errorf("error parsing token: %v", err)
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
