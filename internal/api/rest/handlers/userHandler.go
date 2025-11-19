@@ -97,7 +97,9 @@ func (h *UserHandler) CreateProfile(ctx *fiber.Ctx) error {
 
 
 func (h *UserHandler) GetProfile(ctx *fiber.Ctx) error {
-	return ctx.Status(200).JSON(&fiber.Map{"message": "get profile"})
+	user := h.GetCurrentUser(ctx)
+
+	return ctx.Status(200).JSON(&fiber.Map{"message": "get profile", "user": user})
 }
 
 
