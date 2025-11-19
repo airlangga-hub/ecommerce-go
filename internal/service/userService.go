@@ -69,7 +69,7 @@ func (s UserService) isUserVerified(id uint) bool {
 func (s UserService) CreateVerificationCode(user domain.User) (int, error) {
 	// if user already verified
 	if s.isUserVerified(user.ID) {
-		return 0, nil
+		return 0, errors.New("user already verified")
 	}
 
 	// generate verification code
