@@ -112,7 +112,9 @@ func (a Auth) Authorize(ctx *fiber.Ctx) error {
 	authHeader := ctx.Get("Authorization")
 
 	if authHeader == "" {
-		return errors.New("missing auth header")
+		return ctx.Status(401).JSON(&fiber.Map{
+			"message": "missing auth header",
+		})
 	}
 
 	user, err := a.VerifyToken(authHeader)
