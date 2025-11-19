@@ -48,15 +48,15 @@ func (h *UserHandler) Register(ctx *fiber.Ctx) error {
 	user := dto.UserSignUp{}
 	err := ctx.BodyParser(&user)
 	if err != nil {
-		return ctx.Status(400).JSON(&fiber.Map{"message": "please provide valid inputs for signup"})
+		return ctx.Status(400).JSON(&fiber.Map{"message": "please provide valid inputs for signup", "error": err.Error()})
 	}
 
 	token, err := h.SignUp(user)
 	if err != nil {
-		return ctx.Status(500).JSON(&fiber.Map{"message": "error on signup", "reason": err.Error()})
+		return ctx.Status(500).JSON(&fiber.Map{"message": "error on signup", "error": err.Error()})
 	}
 
-	return ctx.Status(200).JSON(&fiber.Map{"message": token})
+	return ctx.Status(200).JSON(&fiber.Map{"message": "register", "token": token})
 }
 
 
@@ -64,13 +64,13 @@ func (h *UserHandler) Login(ctx *fiber.Ctx) error {
 	userLogin := dto.UserLogin{}
 	err := ctx.BodyParser(&userLogin)
 	if err != nil {
-		return ctx.Status(401).JSON(&fiber.Map{"message": "please provide valid user_id & password"})
+		return ctx.Status(401).JSON(&fiber.Map{"message": "please provide valid user_id & password", "error": err.Error()})
 	}
 
 	token, err := h.UserLogin(userLogin.Email, userLogin.Password)
 
 	if err != nil {
-		return ctx.Status(401).JSON(&fiber.Map{"message": "unauthorized user"})
+		return ctx.Status(401).JSON(&fiber.Map{"message": "unauthorized user", "error": err.Error()})
 	}
 
 	return ctx.Status(200).JSON(&fiber.Map{"message": "login", "token": token})
