@@ -6,6 +6,7 @@ import (
 
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 
@@ -29,6 +30,7 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 
 func (ur *userRepository) CreateUser(user domain.User) (domain.User, error) {
 	err := ur.db.Create(&user).Error
+
 	if err != nil {
 		log.Println("error creating user: ", err)
 		return domain.User{}, errors.New("failed to create user")
@@ -39,15 +41,41 @@ func (ur *userRepository) CreateUser(user domain.User) (domain.User, error) {
 
 
 func (ur *userRepository) FindUser(email string) (domain.User, error) {
-	return domain.User{}, nil
+	var user domain.User
+
+	err := ur.db.First(&user, "email=?", email).Error
+
+	if err != nil {
+		log.Println("find user error: ", err)
+		return domain.User{}, errors.New("user does not exist")
+	}
+
+	return user, nil
 }
 
 
 func (ur *userRepository) FindUserByID(id uint) (domain.User, error) {
-	return domain.User{}, nil
+	var user domain.User
+
+	err := ur.db.First(&user, id).Error
+
+	if err != nil {
+		log.Println("find user error: ", err)
+		return domain.User{}, errors.New("user does not exist")
+	}
+	return user, nil
 }
 
 
 func (ur *userRepository) UpdateUser(id uint, user domain.User) (domain.User, error) {
-	return domain.User{}, nil
+	var usr domain.User
+
+	err := ur.db.Model(&usr).Clauses(clause.Returning{}).Where("id=?", id).Updates(user).Error
+
+	if err != nil {
+		log.Println("error on update: ", err)
+		return domain.User{}, errors.New("failed to update user")
+	}
+
+	return usr, nil
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -33,12 +34,19 @@ func (s UserService) SignUp(input dto.UserSignUp) (string, error) {
 
 
 func (s UserService) FindUserByEmail(email string) (*domain.User, error) {
-	return nil, nil
+	user, err := s.FindUser(email)
+
+	return &user, err
 }
 
 
-func (s UserService) Login(input any) (string, error) {
-	return "", nil
+func (s UserService) UserLogin(email, password string) (string, error) {
+	user, err := s.FindUserByEmail(email)
+	if err != nil {
+		return "", errors.New("user does not exist with the provided email")
+	}
+
+	return user.Email, nil
 }
 
 

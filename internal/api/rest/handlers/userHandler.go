@@ -60,7 +60,19 @@ func (h *UserHandler) Register(ctx *fiber.Ctx) error {
 
 
 func (h *UserHandler) Login(ctx *fiber.Ctx) error {
-	return ctx.Status(200).JSON(&fiber.Map{"message": "login"})
+	userLogin := dto.UserLogin{}
+	err := ctx.BodyParser(&userLogin)
+	if err != nil {
+		return ctx.Status(401).JSON(&fiber.Map{"message": "please provide valid user_id & password"})
+	}
+
+	token, err := h.UserLogin(userLogin.Email, userLogin.Password)
+
+	if err != nil {
+		return ctx.Status(401).JSON(&fiber.Map{"message": "unauthorized user"})
+	}
+
+	return ctx.Status(200).JSON(&fiber.Map{"message": "login", "token": token})
 }
 
 
