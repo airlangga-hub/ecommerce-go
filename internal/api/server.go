@@ -7,6 +7,7 @@ import (
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest"
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest/handlers"
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
+	"github.com/airlangga-hub/ecommerce-go/internal/helper"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -26,12 +27,15 @@ func StartServer(cfg config.AppConfig) {
 	// db migration
 	db.AutoMigrate(&domain.User{})
 
-	httpHandler := rest.HttpHandler{
+	auth := helper.Auth{Secret: cfg.AppSecret}
+
+	httpHandler := &rest.HttpHandler{
 		App: app,
 		DB: db,
+		Auth: auth,
 	}
 
-	setupRoutes(&httpHandler)
+	setupRoutes(httpHandler)
 
 	app.Listen(cfg.ServerPort)
 }

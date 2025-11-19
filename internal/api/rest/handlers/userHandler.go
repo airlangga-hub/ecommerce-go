@@ -19,6 +19,7 @@ func SetupUserRoutes(rh *rest.HttpHandler) {
 
 	userService := service.UserService{
 		UserRepository: repository.NewUserRepository(rh.DB),
+		Auth: rh.Auth,
 	}
 	handler := &UserHandler{userService}
 
