@@ -24,23 +24,27 @@ func SetupUserRoutes(rh *rest.HttpHandler) {
 	handler := &UserHandler{userService}
 
 	// Public endpoints
-	app.Post("/register", handler.Register)
-	app.Post("/login", handler.Login)
+	publicRoutes := app.Group("/users")
+
+	publicRoutes.Post("/register", handler.Register)
+	publicRoutes.Post("/login", handler.Login)
 
 	// Private endpoints
-	app.Post("/verify", handler.Verify)
-	app.Get("/verify", handler.GetVerificationCode)
+	privateRoutes := publicRoutes.Group("/", handler.Authorize)
 
-	app.Post("/profile", handler.CreateProfile)
-	app.Get("/profile", handler.GetProfile)
+	privateRoutes.Post("/verify", handler.Verify)
+	privateRoutes.Get("/verify", handler.GetVerificationCode)
 
-	app.Post("/cart", handler.AddToCart)
-	app.Get("/cart", handler.GetCart)
+	privateRoutes.Post("/profile", handler.CreateProfile)
+	privateRoutes.Get("/profile", handler.GetProfile)
 
-	app.Get("/order", handler.GetOrders)
-	app.Get("/order/:id", handler.GetOrder)
+	privateRoutes.Post("/cart", handler.AddToCart)
+	privateRoutes.Get("/cart", handler.GetCart)
 
-	app.Post("/become-seller", handler.BecomeSeller)
+	privateRoutes.Get("/order", handler.GetOrders)
+	privateRoutes.Get("/order/:id", handler.GetOrder)
+
+	privateRoutes.Post("/become-seller", handler.BecomeSeller)
 }
 
 
