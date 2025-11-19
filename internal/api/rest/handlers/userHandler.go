@@ -53,7 +53,7 @@ func (h *UserHandler) Register(ctx *fiber.Ctx) error {
 
 	token, err := h.SignUp(user)
 	if err != nil {
-		return ctx.Status(500).JSON(&fiber.Map{"message": "error on signup"})
+		return ctx.Status(500).JSON(&fiber.Map{"message": "error on signup", "reason": err.Error()})
 	}
 
 	return ctx.Status(200).JSON(&fiber.Map{"message": token})
