@@ -68,14 +68,16 @@ func (ur *userRepository) FindUserByID(id uint) (domain.User, error) {
 
 
 func (ur *userRepository) UpdateUser(id uint, user domain.User) (domain.User, error) {
-	var usr domain.User
+	u := domain.User{
+		ID: id,
+	}
 
-	err := ur.db.Model(&usr).Clauses(clause.Returning{}).Where("id=?", id).Updates(user).Error
+	err := ur.db.Model(&u).Clauses(clause.Returning{}).Select("*").Updates(user).Error
 
 	if err != nil {
 		log.Println("error on update: ", err)
 		return domain.User{}, errors.New("failed to update user")
 	}
 
-	return usr, nil
+	return u, nil
 }
