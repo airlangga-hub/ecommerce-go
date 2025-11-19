@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"time"
 
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
@@ -58,9 +59,39 @@ func (s UserService) UserLogin(email, password string) (string, error) {
 	return s.GenerateToken(user.ID, user.Email, user.UserType)
 }
 
+func (s UserService) isUserVerified(id uint) bool {
+	user, err := s.FindUserByID(id)
 
-func (s UserService) GetVerificationCode(user domain.User) (int, error) {
-	return 0, nil
+	return err == nil && user.Verified
+}
+
+
+func (s UserService) CreateVerificationCode(user domain.User) (int, error) {
+	// if user already verified
+	if s.isUserVerified(user.ID) {
+		return 0, nil
+	}
+
+	// generate verification code
+	code, err := s.GenerateCode()
+	if err != nil {
+		return 0, err
+	}
+
+	// update user
+	u := domain.User{
+		Expiry: time.Now().Add(time.Minute * 30),
+		Code: code,
+	}
+
+	_, err = s.UpdateUser(user.ID, u)
+	if err != nil {
+		return 0, errors.New("failed to update user verification code")
+	}
+
+	// send SMS
+
+	return code, nil
 }
 
 

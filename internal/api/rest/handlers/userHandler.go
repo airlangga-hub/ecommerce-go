@@ -87,7 +87,15 @@ func (h *UserHandler) Verify(ctx *fiber.Ctx) error {
 
 
 func (h *UserHandler) GetVerificationCode(ctx *fiber.Ctx) error {
-	return ctx.Status(200).JSON(&fiber.Map{"message": "get verification code"})
+	user := h.GetCurrentUser(ctx)
+
+	code, err := h.CreateVerificationCode(user)
+
+	if err != nil {
+	return ctx.Status(500).JSON(&fiber.Map{"message": "failed to generate verification code", "error": err.Error()})
+	}
+
+	return ctx.Status(200).JSON(&fiber.Map{"message": "get verification code", "data": code})
 }
 
 
