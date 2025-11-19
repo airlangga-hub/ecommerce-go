@@ -122,7 +122,7 @@ func (a Auth) Authorize(ctx *fiber.Ctx) error {
 	if err != nil || user.ID < 1 {
 		return ctx.Status(401).JSON(&fiber.Map{
 			"message": "authorization failed",
-			"reason": err,
+			"reason": err.Error(),
 		})
 	}
 
