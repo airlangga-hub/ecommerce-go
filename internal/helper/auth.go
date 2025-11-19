@@ -45,13 +45,13 @@ func (a Auth) GenerateToken(id uint, email, role string) (string, error) {
 		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
 	})
 
-	authHeader, err := token.SignedString([]byte(a.Secret))
+	tokenStr, err := token.SignedString([]byte(a.Secret))
 
 	if err != nil {
 		return "", errors.New("error signing token")
 	}
 
-	return authHeader, nil
+	return tokenStr, nil
 }
 
 
@@ -74,7 +74,7 @@ func (a Auth) VerifyToken(authHeader string) (domain.User, error) {
 	tokenSlice:= strings.Fields(authHeader)
 
 	if len(tokenSlice) < 2 || tokenSlice[0] != "Bearer" {
-		return domain.User{}, errors.New("malformed token")
+		return domain.User{}, errors.New("malformed auth header")
 	}
 
 	token, err := jwt.Parse(

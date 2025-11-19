@@ -2,8 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
-	"log"
 
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
@@ -19,19 +17,23 @@ type UserService struct {
 
 
 func (s UserService) SignUp(input dto.UserSignUp) (string, error) {
-	log.Println(input)
+	hashedPassword, err := s.CreateHashedPassword(input.Password)
+	if err != nil {
+		return "", err
+	}
 
 	user, err := s.CreateUser(
 		domain.User{
 			Email: input.Email,
-			Password: input.Password,
+			Password: hashedPassword,
 			Phone: input.Phone,
 		},
 	)
+	if err != nil {
+		return "", nil
+	}
 
-	userInfo := fmt.Sprintf("%v, %v, %v", user.ID, user.Email, user.UserType)
-
-	return userInfo, err
+	return s.GenerateToken(user.ID, user.Email, user.UserType)
 }
 
 
@@ -48,7 +50,12 @@ func (s UserService) UserLogin(email, password string) (string, error) {
 		return "", errors.New("user does not exist with the provided email")
 	}
 
-	return user.Email, nil
+	err = s.VerifyPassword(password, user.Password)
+	if err != nil {
+		return "", err
+	}
+
+	return s.GenerateToken(user.ID, user.Email, user.UserType)
 }
 
 
