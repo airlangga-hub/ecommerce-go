@@ -96,6 +96,32 @@ func (s UserService) CreateVerificationCode(user domain.User) (int, error) {
 
 
 func (s UserService) VerifyCode(id uint, code int) error {
+	if s.isUserVerified(id) {
+		return errors.New("user already verified")
+	}
+
+	user, err := s.FindUserByID(id)
+
+	if user.Code != code {
+		return errors.New("invalid verification code")
+	}
+	if err != nil {
+		return err
+	}
+	if user.Expiry.Before(time.Now()) {
+		return errors.New("verification code expired")
+	}
+
+	u := domain.User{
+		Verified: true,
+	}
+
+	_, err = s.UpdateUser(user.ID, u)
+
+	if err != nil {
+		return errors.New("failed to update user verified status")
+	}
+
 	return nil
 }
 

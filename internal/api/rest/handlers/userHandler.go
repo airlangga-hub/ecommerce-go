@@ -82,7 +82,25 @@ func (h *UserHandler) Login(ctx *fiber.Ctx) error {
 
 
 func (h *UserHandler) Verify(ctx *fiber.Ctx) error {
-	return ctx.Status(200).JSON(&fiber.Map{"message": "verify"})
+	user := h.GetCurrentUser(ctx)
+
+	var verificationCode dto.VerificationCode
+
+	if err := ctx.BodyParser(&verificationCode); err != nil {
+		return ctx.Status(400).JSON(&fiber.Map{
+			"message": "please provide valid verification code",
+			"error": err.Error(),
+		})
+	}
+
+	if err := h.VerifyCode(user.ID, verificationCode.Code); err != nil {
+		return ctx.Status(500).JSON(&fiber.Map{
+			"message": "failed to verify code",
+			"error": err.Error(),
+		})
+	}
+
+	return ctx.Status(200).JSON(&fiber.Map{"message": "verified successfully"})
 }
 
 
