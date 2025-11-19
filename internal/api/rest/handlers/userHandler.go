@@ -5,6 +5,7 @@ import (
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"github.com/airlangga-hub/ecommerce-go/internal/repository"
 	"github.com/airlangga-hub/ecommerce-go/internal/service"
+	"github.com/airlangga-hub/ecommerce-go/pkg/notification"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -20,6 +21,7 @@ func SetupUserRoutes(rh *rest.HttpHandler) {
 	userService := service.UserService{
 		UserRepository: repository.NewUserRepository(rh.DB),
 		Auth: rh.Auth,
+		NotificationClient: notification.NewNotificationClient(rh.Config),
 	}
 	handler := &UserHandler{userService}
 
@@ -107,13 +109,13 @@ func (h *UserHandler) Verify(ctx *fiber.Ctx) error {
 func (h *UserHandler) GetVerificationCode(ctx *fiber.Ctx) error {
 	user := h.GetCurrentUser(ctx)
 
-	code, err := h.CreateVerificationCode(user)
+	err := h.CreateVerificationCode(user)
 
 	if err != nil {
 	return ctx.Status(500).JSON(&fiber.Map{"message": "failed to generate verification code", "error": err.Error()})
 	}
 
-	return ctx.Status(200).JSON(&fiber.Map{"message": "get verification code", "data": code})
+	return ctx.Status(200).JSON(&fiber.Map{"message": "get verification code"})
 }
 
 

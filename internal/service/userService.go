@@ -2,18 +2,21 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"github.com/airlangga-hub/ecommerce-go/internal/helper"
 	"github.com/airlangga-hub/ecommerce-go/internal/repository"
+	"github.com/airlangga-hub/ecommerce-go/pkg/notification"
 )
 
 
 type UserService struct {
 	repository.UserRepository
 	helper.Auth
+	notification.NotificationClient
 }
 
 
@@ -66,16 +69,16 @@ func (s UserService) isUserVerified(id uint) bool {
 }
 
 
-func (s UserService) CreateVerificationCode(user domain.User) (int, error) {
+func (s UserService) CreateVerificationCode(user domain.User) error {
 	// if user already verified
 	if s.isUserVerified(user.ID) {
-		return 0, errors.New("user already verified")
+		return errors.New("user already verified")
 	}
 
 	// generate verification code
 	code, err := s.GenerateCode()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	// update user
@@ -86,12 +89,26 @@ func (s UserService) CreateVerificationCode(user domain.User) (int, error) {
 
 	_, err = s.UpdateUser(user.ID, u)
 	if err != nil {
-		return 0, errors.New("failed to update user verification code")
+		return errors.New("failed to update user verification code")
+	}
+
+	// find user
+	u, err = s.FindUserByID(user.ID)
+	if err != nil {
+		return errors.New("user does not exist")
+	}
+	if u.Phone == "" {
+		return errors.New("user does not have a phone number")
 	}
 
 	// send SMS
+	msg := fmt.Sprintf("Your verification code is %v", code)
 
-	return code, nil
+	if err := s.SendSMS(u.Phone, msg); err != nil {
+		return errors.New("error sending sms")
+	}
+
+	return nil
 }
 
 
