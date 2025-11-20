@@ -8,7 +8,7 @@ import (
 
 
 type CatalogService struct {
-	repository.CatalogRepository
-	*helper.Auth
-	*config.AppConfig
+	CatalogRepo repository.CatalogRepository
+	Auth *helper.Auth
+	Config *config.AppConfig
 }

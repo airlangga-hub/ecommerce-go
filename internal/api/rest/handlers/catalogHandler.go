@@ -9,19 +9,19 @@ import (
 
 
 type CatalogHandler struct {
-	service.CatalogService
+	Svc *service.CatalogService
 }
 
 
 func SetupCatalogRoutes(rh *rest.HttpHandler) {
 	app := rh.App
 
-	catalogService := service.CatalogService{
-		CatalogRepository: repository.NewCatalogRepository(rh.DB),
+	catalogService := &service.CatalogService{
+		CatalogRepo: repository.NewCatalogRepository(rh.DB),
 		Auth: rh.Auth,
-		AppConfig: rh.Config,
+		Config: rh.Config,
 	}
-	handler := &CatalogHandler{catalogService}
+	handler := &CatalogHandler{Svc: catalogService}
 
 	// Public endpoints
 	app.Get("/products")
@@ -31,7 +31,7 @@ func SetupCatalogRoutes(rh *rest.HttpHandler) {
 	app.Get("/categories/:id", handler.GetCategoryByID)
 
 	// Private endpoints
-	sellerRoutes := app.Group("/seller", handler.Authorize)
+	sellerRoutes := app.Group("/seller", handler.Svc.Auth.Authorize)
 
 	sellerRoutes.Post("/categories", handler.CreateCategories)
 	sellerRoutes.Patch("/categories/:id", handler.EditCategory)

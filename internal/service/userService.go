@@ -15,20 +15,20 @@ import (
 
 
 type UserService struct {
-	repository.UserRepository
-	*helper.Auth
-	*config.AppConfig
+	UserRepo repository.UserRepository
+	Auth *helper.Auth
+	Config *config.AppConfig
 }
 
 
 func (s *UserService) SignUp(input dto.UserSignUp) (string, error) {
-	hashedPassword, err := s.CreateHashedPassword(input.Password)
+	hashedPassword, err := s.Auth.CreateHashedPassword(input.Password)
 	if err != nil {
 		return "", err
 	}
 
-	user, err := s.CreateUser(
-		domain.User{
+	user, err := s.UserRepo.CreateUser(
+		&domain.User{
 			Email: input.Email,
 			Password: hashedPassword,
 			Phone: input.Phone,
@@ -38,14 +38,14 @@ func (s *UserService) SignUp(input dto.UserSignUp) (string, error) {
 		return "", nil
 	}
 
-	return s.GenerateToken(user.ID, user.Email, user.UserType)
+	return s.Auth.GenerateToken(user.ID, user.Email, user.UserType)
 }
 
 
 func (s *UserService) FindUserByEmail(email string) (*domain.User, error) {
-	user, err := s.FindUser(email)
+	user, err := s.UserRepo.FindUser(email)
 
-	return &user, err
+	return user, err
 }
 
 
@@ -55,16 +55,16 @@ func (s *UserService) UserLogin(email, password string) (string, error) {
 		return "", errors.New("user does not exist with the provided email")
 	}
 
-	err = s.VerifyPassword(password, user.Password)
+	err = s.Auth.VerifyPassword(password, user.Password)
 	if err != nil {
 		return "", err
 	}
 
-	return s.GenerateToken(user.ID, user.Email, user.UserType)
+	return s.Auth.GenerateToken(user.ID, user.Email, user.UserType)
 }
 
 func (s *UserService) isUserVerified(id uint) bool {
-	user, err := s.FindUserByID(id)
+	user, err := s.UserRepo.FindUserByID(id)
 
 	return err == nil && user.Verified
 }
@@ -77,24 +77,24 @@ func (s *UserService) CreateVerificationCode(user domain.User) error {
 	}
 
 	// generate verification code
-	code, err := s.GenerateCode()
+	code, err := s.Auth.GenerateCode()
 	if err != nil {
 		return err
 	}
 
 	// update user
-	u := domain.User{
+	u := &domain.User{
 		Expiry: time.Now().Add(time.Minute * 30),
 		Code: code,
 	}
 
-	_, err = s.UpdateUser(user.ID, u)
+	_, err = s.UserRepo.UpdateUser(user.ID, u)
 	if err != nil {
 		return errors.New("failed to update user verification code")
 	}
 
 	// find user
-	u, err = s.FindUserByID(user.ID)
+	u, err = s.UserRepo.FindUserByID(user.ID)
 	if err != nil {
 		return errors.New("user does not exist")
 	}
@@ -103,7 +103,7 @@ func (s *UserService) CreateVerificationCode(user domain.User) error {
 	}
 
 	// send SMS
-	notificationClient := notification.NewNotificationClient(s.AppConfig)
+	notificationClient := notification.NewNotificationClient(s.Config)
 
 	msg := fmt.Sprintf("Your verification code is %v", code)
 
@@ -120,7 +120,7 @@ func (s *UserService) VerifyCode(id uint, code int) error {
 		return errors.New("user already verified")
 	}
 
-	user, err := s.FindUserByID(id)
+	user, err := s.UserRepo.FindUserByID(id)
 
 	if user.Code != code {
 		return errors.New("invalid verification code")
@@ -132,11 +132,11 @@ func (s *UserService) VerifyCode(id uint, code int) error {
 		return errors.New("verification code expired")
 	}
 
-	u := domain.User{
+	u := &domain.User{
 		Verified: true,
 	}
 
-	_, err = s.UpdateUser(user.ID, u)
+	_, err = s.UserRepo.UpdateUser(user.ID, u)
 
 	if err != nil {
 		return errors.New("failed to update user verified status")
@@ -163,7 +163,7 @@ func (s *UserService) UpdateProfile(id uint, input any) error {
 
 func (s *UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, error) {
 	// fetch user from db
-	user, err := s.FindUserByID(id)
+	user, err := s.UserRepo.FindUserByID(id)
 	if err != nil {
 		return "", errors.New("user not found")
 	}
@@ -172,9 +172,9 @@ func (s *UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, 
 	}
 
 	// update user
-	user, err = s.UpdateUser(
+	user, err = s.UserRepo.UpdateUser(
 		user.ID,
-		domain.User{
+		&domain.User{
 			FirstName: input.FirstName,
 			LastName: input.LastName,
 			Phone: input.PhoneNumber,
@@ -186,13 +186,13 @@ func (s *UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, 
 	}
 
 	// generate token
-	token, err := s.GenerateToken(user.ID, user.Email, user.UserType)
+	token, err := s.Auth.GenerateToken(user.ID, user.Email, user.UserType)
 	if err != nil {
 		return "", errors.New("failed to generate token")
 	}
 
 	// create bank account information in db
-	if err := s.CreateBankAccount(domain.BankAccount{
+	if err := s.UserRepo.CreateBankAccount(&domain.BankAccount{
 		UserID: user.ID,
 		BankAccountNumber: input.BankAccountNumber,
 		SwiftCode: input.SwiftCode,
