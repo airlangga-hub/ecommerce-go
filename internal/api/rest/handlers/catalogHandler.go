@@ -32,7 +32,7 @@ func SetupCatalogRoutes(rh *rest.HttpHandler) {
 	app.Get("/categories/:id")
 
 	// Private endpoints
-	sellerRoutes := app.Group("/seller")
+	sellerRoutes := app.Group("/seller", handler.Authorize)
 
 	sellerRoutes.Post("/categories", handler.CreateCategories)
 	sellerRoutes.Patch("/categories/:id", handler.EditCategory)
@@ -41,13 +41,16 @@ func SetupCatalogRoutes(rh *rest.HttpHandler) {
 	sellerRoutes.Post("/products", handler.CreateProducts)
 	sellerRoutes.Get("/products", handler.GetProducts)
 	sellerRoutes.Get("/products/:id", handler.GetProduct)
-	sellerRoutes.Patch("/products/:id", handler.EditProduct)
+	sellerRoutes.Put("/products/:id", handler.EditProduct)
 	sellerRoutes.Patch("/products/:id", handler.UpdateStock) // update stock
 	sellerRoutes.Delete("/products/:id", handler.DeleteProduct)
 }
 
 
 func (h *CatalogHandler) CreateCategories(ctx *fiber.Ctx) error {
+	user := h.GetCurrentUser(ctx)
+
+	
 
 	return rest.OkResponse(ctx, "create categories", nil)
 }

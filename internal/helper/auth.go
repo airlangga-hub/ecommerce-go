@@ -143,3 +143,34 @@ func (a Auth) GenerateCode() (int, error) {
 
 	return RandomNumbers(6)
 }
+
+
+func (a Auth) AuthorizeSeller(ctx *fiber.Ctx) error {
+	authHeader := ctx.Get("Authorization")
+
+	if authHeader == "" {
+		return ctx.Status(401).JSON(&fiber.Map{
+			"message": "missing auth header",
+		})
+	}
+
+	user, err := a.VerifyToken(authHeader)
+
+	if err != nil || user.ID < 1 {
+		return ctx.Status(401).JSON(&fiber.Map{
+			"message": "authorization failed",
+			"reason": err.Error(),
+		})
+	}
+
+	if user.UserType != domain.SELLER {
+		return ctx.Status(401).JSON(&fiber.Map{
+			"message": "unauthorized user",
+			"reason": "you are not a seller",
+		})
+	}
+
+	ctx.Locals("user", user)
+
+	return ctx.Next()
+}
