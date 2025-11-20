@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest"
+	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"github.com/airlangga-hub/ecommerce-go/internal/repository"
 	"github.com/airlangga-hub/ecommerce-go/internal/service"
 	"github.com/gofiber/fiber/v2"
@@ -31,7 +32,7 @@ func SetupCatalogRoutes(rh *rest.HttpHandler) {
 	app.Get("/categories/:id", handler.GetCategoryByID)
 
 	// Private endpoints
-	sellerRoutes := app.Group("/seller", handler.Svc.Auth.Authorize)
+	sellerRoutes := app.Group("/seller", handler.Svc.Auth.AuthorizeSeller)
 
 	sellerRoutes.Post("/categories", handler.CreateCategories)
 	sellerRoutes.Patch("/categories/:id", handler.EditCategory)
@@ -61,7 +62,11 @@ func (h *CatalogHandler) GetCategoryByID(ctx *fiber.Ctx) error {
 func (h *CatalogHandler) CreateCategories(ctx *fiber.Ctx) error {
 	// user := h.GetCurrentUser(ctx)
 
+	category := &dto.CreateCategoryRequest{}
 
+	if err := ctx.BodyParser(category); err != nil {
+		rest.BadRequest(ctx, "invalid request body")
+	}
 
 	return rest.OkResponse(ctx, "create categories", nil)
 }

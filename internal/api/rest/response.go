@@ -9,8 +9,15 @@ func ErrorResponse(ctx *fiber.Ctx, statusCode int, err error) error {
 
 
 func OkResponse(ctx *fiber.Ctx, msg string, data any) error {
-	return ctx.Status(200).JSON(&fiber.Map{
+	return ctx.Status(200).JSON(fiber.Map{
 		"message": msg,
 		"data": data,
+	})
+}
+
+
+func BadRequest(ctx *fiber.Ctx, msg string) error {
+	return ctx.Status(400).JSON(fiber.Map{
+		"message": msg,
 	})
 }
