@@ -5,7 +5,6 @@ import (
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"github.com/airlangga-hub/ecommerce-go/internal/repository"
 	"github.com/airlangga-hub/ecommerce-go/internal/service"
-	"github.com/airlangga-hub/ecommerce-go/pkg/notification"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -21,7 +20,7 @@ func SetupUserRoutes(rh *rest.HttpHandler) {
 	userService := service.UserService{
 		UserRepository: repository.NewUserRepository(rh.DB),
 		Auth: rh.Auth,
-		NotificationClient: notification.NewNotificationClient(rh.Config),
+		AppConfig: rh.Config,
 	}
 	handler := &UserHandler{userService}
 

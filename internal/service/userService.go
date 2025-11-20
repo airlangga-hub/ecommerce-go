@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/airlangga-hub/ecommerce-go/config"
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"github.com/airlangga-hub/ecommerce-go/internal/helper"
@@ -16,7 +17,7 @@ import (
 type UserService struct {
 	repository.UserRepository
 	helper.Auth
-	notification.NotificationClient
+	config.AppConfig
 }
 
 
@@ -102,9 +103,11 @@ func (s UserService) CreateVerificationCode(user domain.User) error {
 	}
 
 	// send SMS
+	notificationClient := notification.NewNotificationClient(s.AppConfig)
+
 	msg := fmt.Sprintf("Your verification code is %v", code)
 
-	if err := s.SendSMS(u.Phone, msg); err != nil {
+	if err := notificationClient.SendSMS(u.Phone, msg); err != nil {
 		return errors.New("error sending sms")
 	}
 
