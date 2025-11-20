@@ -159,9 +159,46 @@ func (s UserService) UpdateProfile(id uint, input any) error {
 
 
 func (s UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, error) {
-	
+	// fetch user from db
+	user, err := s.FindUserByID(id)
+	if err != nil {
+		return "", errors.New("user not found")
+	}
+	if user.UserType == domain.SELLER {
+		return "", errors.New("user is already a seller")
+	}
 
-	return "", nil
+	// update user
+	user, err = s.UpdateUser(
+		user.ID,
+		domain.User{
+			FirstName: input.FirstName,
+			LastName: input.LastName,
+			Phone: input.PhoneNumber,
+			UserType: domain.SELLER,
+		},
+	)
+	if err != nil {
+		return "", fmt.Errorf("failed to update user type: %v", err)
+	}
+
+	// generate token
+	token, err := s.GenerateToken(user.ID, user.Email, user.UserType)
+	if err != nil {
+		return "", errors.New("failed to generate token")
+	}
+
+	// create bank account information in db
+	if err := s.CreateBankAccount(domain.BankAccount{
+		UserID: user.ID,
+		BankAccountNumber: input.BankAccountNumber,
+		SwiftCode: input.SwiftCode,
+		PaymentType: input.PaymentType,
+	}); err != nil {
+		return "", fmt.Errorf("failed to create bank account in db: %v", err)
+	}
+
+	return token, nil
 }
 
 

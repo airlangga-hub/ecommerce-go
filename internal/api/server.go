@@ -15,7 +15,6 @@ import (
 
 
 func StartServer(cfg config.AppConfig) {
-	app := fiber.New()
 
 	db, err := gorm.Open(postgres.Open(cfg.Dsn), &gorm.Config{})
 	if err != nil {
@@ -25,9 +24,14 @@ func StartServer(cfg config.AppConfig) {
 	log.Println("database connected")
 
 	// db migration
-	db.AutoMigrate(&domain.User{})
+	err = db.AutoMigrate(&domain.User{}, &domain.BankAccount{})
+	if err != nil {
+		log.Fatal("DB Migration failed")
+	}
+	log.Println("DB Migration successful")
 
 	auth := helper.Auth{Secret: cfg.AppSecret}
+	app := fiber.New()
 
 	httpHandler := &rest.HttpHandler{
 		App: app,

@@ -15,6 +15,7 @@ type UserRepository interface {
 	FindUser(email string) (domain.User, error)
 	FindUserByID(id uint) (domain.User, error)
 	UpdateUser(id uint, user domain.User) (domain.User, error)
+	CreateBankAccount(bank domain.BankAccount ) error
 }
 
 
@@ -80,4 +81,9 @@ func (ur *userRepository) UpdateUser(id uint, user domain.User) (domain.User, er
 	}
 
 	return u, nil
+}
+
+
+func (ur *userRepository) CreateBankAccount(bank domain.BankAccount ) error {
+	return ur.db.Create(&bank).Error
 }
