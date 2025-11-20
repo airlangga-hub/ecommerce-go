@@ -158,7 +158,9 @@ func (s UserService) UpdateProfile(id uint, input any) error {
 }
 
 
-func (s UserService) BecomeSeller(id uint, input any) (string, error) {
+func (s UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, error) {
+	
+
 	return "", nil
 }
 

@@ -54,15 +54,24 @@ func (h *UserHandler) Register(ctx *fiber.Ctx) error {
 	user := dto.UserSignUp{}
 	err := ctx.BodyParser(&user)
 	if err != nil {
-		return ctx.Status(400).JSON(&fiber.Map{"message": "please provide valid inputs for signup", "error": err.Error()})
+		return ctx.Status(400).JSON(&fiber.Map{
+			"message": "please provide valid inputs for signup",
+			"error": err.Error(),
+		})
 	}
 
 	token, err := h.SignUp(user)
 	if err != nil {
-		return ctx.Status(500).JSON(&fiber.Map{"message": "error on signup", "error": err.Error()})
+		return ctx.Status(500).JSON(&fiber.Map{
+			"message": "error on signup",
+			"error": err.Error(),
+		})
 	}
 
-	return ctx.Status(200).JSON(&fiber.Map{"message": "register", "token": token})
+	return ctx.Status(200).JSON(&fiber.Map{
+		"message": "register",
+		"token": token,
+	})
 }
 
 
@@ -70,16 +79,25 @@ func (h *UserHandler) Login(ctx *fiber.Ctx) error {
 	userLogin := dto.UserLogin{}
 	err := ctx.BodyParser(&userLogin)
 	if err != nil {
-		return ctx.Status(401).JSON(&fiber.Map{"message": "please provide valid user_id & password", "error": err.Error()})
+		return ctx.Status(401).JSON(&fiber.Map{
+			"message": "please provide valid user_id & password",
+			"error": err.Error(),
+		})
 	}
 
 	token, err := h.UserLogin(userLogin.Email, userLogin.Password)
 
 	if err != nil {
-		return ctx.Status(401).JSON(&fiber.Map{"message": "unauthorized user", "error": err.Error()})
+		return ctx.Status(401).JSON(&fiber.Map{
+			"message": "unauthorized user",
+			"error": err.Error(),
+		})
 	}
 
-	return ctx.Status(200).JSON(&fiber.Map{"message": "login", "token": token})
+	return ctx.Status(200).JSON(&fiber.Map{
+		"message": "login",
+		"token": token,
+	})
 }
 
 
@@ -102,7 +120,9 @@ func (h *UserHandler) Verify(ctx *fiber.Ctx) error {
 		})
 	}
 
-	return ctx.Status(200).JSON(&fiber.Map{"message": "verified successfully"})
+	return ctx.Status(200).JSON(&fiber.Map{
+		"message": "verified successfully",
+	})
 }
 
 
@@ -112,45 +132,86 @@ func (h *UserHandler) GetVerificationCode(ctx *fiber.Ctx) error {
 	err := h.CreateVerificationCode(user)
 
 	if err != nil {
-	return ctx.Status(500).JSON(&fiber.Map{"message": "failed to generate verification code", "error": err.Error()})
+		return ctx.Status(500).JSON(&fiber.Map{
+				"message": "failed to generate verification code",
+				"error": err.Error(),
+			})
 	}
 
-	return ctx.Status(200).JSON(&fiber.Map{"message": "get verification code"})
+	return ctx.Status(200).JSON(&fiber.Map{
+		"message": "get verification code",
+	})
 }
 
 
 func (h *UserHandler) CreateProfile(ctx *fiber.Ctx) error {
-	return ctx.Status(200).JSON(&fiber.Map{"message": "create profile"})
+	return ctx.Status(200).JSON(&fiber.Map{
+		"message": "create profile",
+	})
 }
 
 
 func (h *UserHandler) GetProfile(ctx *fiber.Ctx) error {
 	user := h.GetCurrentUser(ctx)
 
-	return ctx.Status(200).JSON(&fiber.Map{"message": "get profile", "user": user})
+	return ctx.Status(200).JSON(&fiber.Map{
+		"message": "get profile",
+		"user": user,
+	})
 }
 
 
 func (h *UserHandler) AddToCart(ctx *fiber.Ctx) error {
-	return ctx.Status(200).JSON(&fiber.Map{"message": "add to cart"})
+	return ctx.Status(200).JSON(&fiber.Map{
+		"message": "add to cart",
+	})
 }
 
 
 func (h *UserHandler) GetCart(ctx *fiber.Ctx) error {
-	return ctx.Status(200).JSON(&fiber.Map{"message": "get cart"})
+	return ctx.Status(200).JSON(&fiber.Map{
+		"message": "get cart",
+	})
 }
 
 
 func (h *UserHandler) GetOrders(ctx *fiber.Ctx) error {
-	return ctx.Status(200).JSON(&fiber.Map{"message": "get orders"})
+	return ctx.Status(200).JSON(&fiber.Map{
+		"message": "get orders",
+	})
 }
 
 
 func (h *UserHandler) GetOrder(ctx *fiber.Ctx) error {
-	return ctx.Status(200).JSON(&fiber.Map{"message": "get order by id"})
+	return ctx.Status(200).JSON(&fiber.Map{
+		"message": "get order by id",
+	})
 }
 
 
 func (h *UserHandler) BecomeSeller(ctx *fiber.Ctx) error {
-	return ctx.Status(200).JSON(&fiber.Map{"message": "become seller"})
+	user := h.GetCurrentUser(ctx)
+
+	var sellerInput dto.SellerInput
+
+	if err := ctx.BodyParser(&sellerInput); err != nil {
+		return ctx.Status(400).JSON(&fiber.Map{
+			"message": "invalid seller input",
+			"error": err.Error() ,
+		})
+	}
+
+	token, err := h.UserBecomeSeller(user.ID, sellerInput)
+
+	if err != nil {
+		return ctx.Status(500).JSON(&fiber.Map{
+			"message": "failed to become seller",
+			"error": err.Error(),
+		})
+	}
+
+	return ctx.Status(200).JSON(&fiber.Map{
+		"message": "become seller",
+		"token": token,
+	})
 }
