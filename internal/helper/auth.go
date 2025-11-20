@@ -18,7 +18,7 @@ type Auth struct {
 }
 
 
-func (a Auth) CreateHashedPassword(password string) (string, error) {
+func (a *Auth) CreateHashedPassword(password string) (string, error) {
 	if len(password) < 6 {
 		return "", errors.New("password must be at least 6 characters long")
 	}
@@ -33,7 +33,7 @@ func (a Auth) CreateHashedPassword(password string) (string, error) {
 }
 
 
-func (a Auth) GenerateToken(id uint, email, role string) (string, error) {
+func (a *Auth) GenerateToken(id uint, email, role string) (string, error) {
 	if id == 0 || email == "" || role == "" {
 		return "", errors.New("required inputs are missing to generate token")
 	}
@@ -55,7 +55,7 @@ func (a Auth) GenerateToken(id uint, email, role string) (string, error) {
 }
 
 
-func (a Auth) VerifyPassword(password, hashedPassword string) error {
+func (a *Auth) VerifyPassword(password, hashedPassword string) error {
 	if len(password) < 6 {
 		return errors.New("password must be at least 6 characters long")
 	}
@@ -70,7 +70,7 @@ func (a Auth) VerifyPassword(password, hashedPassword string) error {
 }
 
 
-func (a Auth) VerifyToken(authHeader string) (domain.User, error) {
+func (a *Auth) VerifyToken(authHeader string) (domain.User, error) {
 	tokenSlice:= strings.Fields(authHeader)
 
 	if len(tokenSlice) < 2 || tokenSlice[0] != "Bearer" {
@@ -108,7 +108,7 @@ func (a Auth) VerifyToken(authHeader string) (domain.User, error) {
 }
 
 
-func (a Auth) Authorize(ctx *fiber.Ctx) error {
+func (a *Auth) Authorize(ctx *fiber.Ctx) error {
 	authHeader := ctx.Get("Authorization")
 
 	if authHeader == "" {
@@ -132,20 +132,20 @@ func (a Auth) Authorize(ctx *fiber.Ctx) error {
 }
 
 
-func (a Auth) GetCurrentUser(ctx *fiber.Ctx) domain.User {
+func (a *Auth) GetCurrentUser(ctx *fiber.Ctx) domain.User {
 	user := ctx.Locals("user")
 
 	return user.(domain.User)
 }
 
 
-func (a Auth) GenerateCode() (int, error) {
+func (a *Auth) GenerateCode() (int, error) {
 
 	return RandomNumbers(6)
 }
 
 
-func (a Auth) AuthorizeSeller(ctx *fiber.Ctx) error {
+func (a *Auth) AuthorizeSeller(ctx *fiber.Ctx) error {
 	authHeader := ctx.Get("Authorization")
 
 	if authHeader == "" {

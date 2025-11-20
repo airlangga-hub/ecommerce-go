@@ -11,6 +11,6 @@ import (
 type HttpHandler struct {
 	App *fiber.App
 	DB *gorm.DB
-	Auth helper.Auth
-	Config config.AppConfig
+	Auth *helper.Auth
+	Config *config.AppConfig
 }

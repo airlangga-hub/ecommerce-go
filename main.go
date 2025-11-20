@@ -15,5 +15,5 @@ func main() {
 		log.Fatalf("config is not setup properly: %v\n", err)
 	}
 
-	api.StartServer(cfg)
+	api.StartServer(&cfg)
 }

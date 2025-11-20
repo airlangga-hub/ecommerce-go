@@ -16,12 +16,12 @@ import (
 
 type UserService struct {
 	repository.UserRepository
-	helper.Auth
-	config.AppConfig
+	*helper.Auth
+	*config.AppConfig
 }
 
 
-func (s UserService) SignUp(input dto.UserSignUp) (string, error) {
+func (s *UserService) SignUp(input dto.UserSignUp) (string, error) {
 	hashedPassword, err := s.CreateHashedPassword(input.Password)
 	if err != nil {
 		return "", err
@@ -42,14 +42,14 @@ func (s UserService) SignUp(input dto.UserSignUp) (string, error) {
 }
 
 
-func (s UserService) FindUserByEmail(email string) (*domain.User, error) {
+func (s *UserService) FindUserByEmail(email string) (*domain.User, error) {
 	user, err := s.FindUser(email)
 
 	return &user, err
 }
 
 
-func (s UserService) UserLogin(email, password string) (string, error) {
+func (s *UserService) UserLogin(email, password string) (string, error) {
 	user, err := s.FindUserByEmail(email)
 	if err != nil {
 		return "", errors.New("user does not exist with the provided email")
@@ -63,14 +63,14 @@ func (s UserService) UserLogin(email, password string) (string, error) {
 	return s.GenerateToken(user.ID, user.Email, user.UserType)
 }
 
-func (s UserService) isUserVerified(id uint) bool {
+func (s *UserService) isUserVerified(id uint) bool {
 	user, err := s.FindUserByID(id)
 
 	return err == nil && user.Verified
 }
 
 
-func (s UserService) CreateVerificationCode(user domain.User) error {
+func (s *UserService) CreateVerificationCode(user domain.User) error {
 	// if user already verified
 	if s.isUserVerified(user.ID) {
 		return errors.New("user already verified")
@@ -115,7 +115,7 @@ func (s UserService) CreateVerificationCode(user domain.User) error {
 }
 
 
-func (s UserService) VerifyCode(id uint, code int) error {
+func (s *UserService) VerifyCode(id uint, code int) error {
 	if s.isUserVerified(id) {
 		return errors.New("user already verified")
 	}
@@ -146,22 +146,22 @@ func (s UserService) VerifyCode(id uint, code int) error {
 }
 
 
-func (s UserService) CreateProfile(id uint, input any) error {
+func (s *UserService) CreateProfile(id uint, input any) error {
 	return nil
 }
 
 
-func (s UserService) GetProfile(id uint) (*domain.User, error) {
+func (s *UserService) GetProfile(id uint) (*domain.User, error) {
 	return nil, nil
 }
 
 
-func (s UserService) UpdateProfile(id uint, input any) error {
+func (s *UserService) UpdateProfile(id uint, input any) error {
 	return nil
 }
 
 
-func (s UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, error) {
+func (s *UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, error) {
 	// fetch user from db
 	user, err := s.FindUserByID(id)
 	if err != nil {
@@ -205,26 +205,26 @@ func (s UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, e
 }
 
 
-func (s UserService) FindCart(id uint) ([]any, error) {
+func (s *UserService) FindCart(id uint) ([]any, error) {
 	return nil, nil
 }
 
 
-func (s UserService) CreateCart(input any, user domain.User) ([]any, error) {
+func (s *UserService) CreateCart(input any, user domain.User) ([]any, error) {
 	return nil, nil
 }
 
 
-func (s UserService) CreateOrder(user domain.User) (int, error) {
+func (s *UserService) CreateOrder(user domain.User) (int, error) {
 	return 0, nil
 }
 
 
-func (s UserService) GetOrders(user domain.User) ([]any, error) {
+func (s *UserService) GetOrders(user domain.User) ([]any, error) {
 	return nil, nil
 }
 
 
-func (s UserService) GetOrderByID(id, userID uint) ([]any, error) {
+func (s *UserService) GetOrderByID(id, userID uint) ([]any, error) {
 	return nil, nil
 }

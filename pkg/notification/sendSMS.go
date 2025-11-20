@@ -16,11 +16,11 @@ type NotificationClient interface {
 
 
 type notificationClient struct {
-	config.AppConfig
+	*config.AppConfig
 }
 
 
-func NewNotificationClient(cfg config.AppConfig) NotificationClient {
+func NewNotificationClient(cfg *config.AppConfig) NotificationClient {
 	return &notificationClient{
 		cfg,
 	}

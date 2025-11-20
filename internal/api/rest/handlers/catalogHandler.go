@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest"
-	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"github.com/airlangga-hub/ecommerce-go/internal/repository"
 	"github.com/airlangga-hub/ecommerce-go/internal/service"
 	"github.com/gofiber/fiber/v2"
@@ -28,8 +27,8 @@ func SetupCatalogRoutes(rh *rest.HttpHandler) {
 	app.Get("/products")
 	app.Get("/products/:id")
 
-	app.Get("/categories")
-	app.Get("/categories/:id")
+	app.Get("/categories", handler.GetCategories)
+	app.Get("/categories/:id", handler.GetCategoryByID)
 
 	// Private endpoints
 	sellerRoutes := app.Group("/seller", handler.Authorize)
@@ -47,10 +46,22 @@ func SetupCatalogRoutes(rh *rest.HttpHandler) {
 }
 
 
-func (h *CatalogHandler) CreateCategories(ctx *fiber.Ctx) error {
-	user := h.GetCurrentUser(ctx)
+func (h *CatalogHandler) GetCategories(ctx *fiber.Ctx) error {
 
-	
+	return rest.OkResponse(ctx, "get categories", nil)
+}
+
+
+func (h *CatalogHandler) GetCategoryByID(ctx *fiber.Ctx) error {
+
+	return rest.OkResponse(ctx, "get category by id", nil)
+}
+
+
+func (h *CatalogHandler) CreateCategories(ctx *fiber.Ctx) error {
+	// user := h.GetCurrentUser(ctx)
+
+
 
 	return rest.OkResponse(ctx, "create categories", nil)
 }

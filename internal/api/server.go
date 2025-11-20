@@ -14,7 +14,7 @@ import (
 )
 
 
-func StartServer(cfg config.AppConfig) {
+func StartServer(cfg *config.AppConfig) {
 
 	db, err := gorm.Open(postgres.Open(cfg.Dsn), &gorm.Config{})
 	if err != nil {
@@ -30,7 +30,7 @@ func StartServer(cfg config.AppConfig) {
 	}
 	log.Println("DB Migration successful")
 
-	auth := helper.Auth{Secret: cfg.AppSecret}
+	auth := &helper.Auth{Secret: cfg.AppSecret}
 	app := fiber.New()
 
 	httpHandler := &rest.HttpHandler{
