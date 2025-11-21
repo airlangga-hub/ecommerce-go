@@ -101,7 +101,7 @@ func (h *CatalogHandler) EditCategory(ctx *fiber.Ctx) error {
 
 	category, err := h.Svc.EditCategory(uint(id), createCategory)
 	if err != nil {
-		rest.ErrorResponse(ctx, 500, err)
+		return rest.ErrorResponse(ctx, 500, err)
 	}
 
 	return rest.OkResponse(ctx, "edit category", category)
