@@ -43,7 +43,7 @@ func SetupUserRoutes(rh *rest.HttpHandler) {
 	privateRoutes.Get("/cart", handler.GetCart)
 
 	privateRoutes.Get("/order", handler.GetOrders)
-	privateRoutes.Get("/order/:id", handler.GetOrder)
+	privateRoutes.Get("/order/:id", handler.GetOrderByID)
 
 	privateRoutes.Post("/become-seller", handler.BecomeSeller)
 }
@@ -54,7 +54,7 @@ func (h *UserHandler) Register(ctx *fiber.Ctx) error {
 	err := ctx.BodyParser(&user)
 	if err != nil {
 		return ctx.Status(400).JSON(fiber.Map{
-			"message": "please provide valid inputs for signup",
+			"message": "invalid request body for signup",
 			"error": err.Error(),
 		})
 	}
@@ -68,7 +68,7 @@ func (h *UserHandler) Register(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(200).JSON(fiber.Map{
-		"message": "register",
+		"message": "register success",
 		"token": token,
 	})
 }
@@ -94,7 +94,7 @@ func (h *UserHandler) Login(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(200).JSON(fiber.Map{
-		"message": "login",
+		"message": "login success",
 		"token": token,
 	})
 }
@@ -107,7 +107,7 @@ func (h *UserHandler) Verify(ctx *fiber.Ctx) error {
 
 	if err := ctx.BodyParser(&verificationCode); err != nil {
 		return ctx.Status(400).JSON(fiber.Map{
-			"message": "please provide valid verification code",
+			"message": "invalid verification code",
 			"error": err.Error(),
 		})
 	}
@@ -138,7 +138,7 @@ func (h *UserHandler) GetVerificationCode(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(200).JSON(fiber.Map{
-		"message": "get verification code",
+		"message": "get verification code success",
 		"code": code,
 	})
 }
@@ -146,7 +146,7 @@ func (h *UserHandler) GetVerificationCode(ctx *fiber.Ctx) error {
 
 func (h *UserHandler) CreateProfile(ctx *fiber.Ctx) error {
 	return ctx.Status(200).JSON(fiber.Map{
-		"message": "create profile",
+		"message": "create profile success",
 	})
 }
 
@@ -155,7 +155,7 @@ func (h *UserHandler) GetProfile(ctx *fiber.Ctx) error {
 	user := h.Svc.Auth.GetCurrentUser(ctx)
 
 	return ctx.Status(200).JSON(fiber.Map{
-		"message": "get profile",
+		"message": "get profile success",
 		"user": user,
 	})
 }
@@ -163,28 +163,28 @@ func (h *UserHandler) GetProfile(ctx *fiber.Ctx) error {
 
 func (h *UserHandler) AddToCart(ctx *fiber.Ctx) error {
 	return ctx.Status(200).JSON(fiber.Map{
-		"message": "add to cart",
+		"message": "add to cart success",
 	})
 }
 
 
 func (h *UserHandler) GetCart(ctx *fiber.Ctx) error {
 	return ctx.Status(200).JSON(fiber.Map{
-		"message": "get cart",
+		"message": "get cart success",
 	})
 }
 
 
 func (h *UserHandler) GetOrders(ctx *fiber.Ctx) error {
 	return ctx.Status(200).JSON(fiber.Map{
-		"message": "get orders",
+		"message": "get orders success",
 	})
 }
 
 
-func (h *UserHandler) GetOrder(ctx *fiber.Ctx) error {
+func (h *UserHandler) GetOrderByID(ctx *fiber.Ctx) error {
 	return ctx.Status(200).JSON(fiber.Map{
-		"message": "get order by id",
+		"message": "get order by id success",
 	})
 }
 
@@ -211,7 +211,7 @@ func (h *UserHandler) BecomeSeller(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(200).JSON(fiber.Map{
-		"message": "become seller",
+		"message": "become seller success",
 		"token": token,
 	})
 }
