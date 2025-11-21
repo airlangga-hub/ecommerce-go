@@ -73,10 +73,78 @@ func (s *CatalogService) EditCategory(id uint, input dto.CreateCategoryRequest) 
 
 
 func (s *CatalogService) DeleteCategory(id uint) error {
-	
+
 	if err := s.Repo.DeleteCategory(id); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+
+func (s *CatalogService) CreateProduct(userID uint, input dto.CreateProduct) error {
+
+	product := domain.Product{
+		Name: input.Name,
+		Description: input.Description,
+		UserID: userID,
+		CategoryID: input.CategoryID,
+		ImageURL: input.ImageURL,
+		Price: input.Price,
+		Stock: input.Stock,
+	}
+
+	return s.Repo.CreateProduct(product)
+}
+
+
+func (s *CatalogService) GetProducts() ([]*domain.Product, error) {
+
+	products, err := s.Repo.FindProducts()
+
+	return products, err
+}
+
+
+func (s *CatalogService) GetProductByID(id uint) (domain.Product, error) {
+
+	product, err := s.Repo.FindProductByID(id)
+
+	return product, err
+}
+
+
+func (s *CatalogService) EditProduct(id uint, input dto.CreateProduct) (domain.Product, error) {
+
+	product := domain.Product{
+		ID: id,
+		Description: input.Description,
+		CategoryID: input.CategoryID,
+		ImageURL: input.ImageURL,
+		Price: input.Price,
+		Stock: input.Stock,
+	}
+
+	updated, err := s.Repo.EditProduct(product)
+
+	return updated, err
+}
+
+
+func (s *CatalogService) UpdateStock(id uint, input dto.UpdateStock) (domain.Product, error) {
+
+	product := domain.Product{
+		ID: id,
+		Stock: input.Stock,
+	}
+
+	updated, err := s.Repo.EditProduct(product)
+
+	return updated, err
+}
+
+
+func (s *CatalogService) DeleteProduct(id uint) error {
+
+	return s.Repo.DeleteProduct(domain.Product{ID: id})
 }

@@ -130,8 +130,8 @@ func (cr *catalogRepository) FindProducts() ([]*domain.Product, error) {
 	tx := cr.db.Find(&products)
 
 	if err := tx.Error; err != nil {
-		log.Print("db_err DeleteCategory: ", err)
-		return nil, errors.New("error deleting category")
+		log.Print("db_err FindProducts: ", err)
+		return nil, errors.New("failed to find products")
 	}
 
 	if len(products) < 1 {
@@ -182,11 +182,11 @@ func (cr *catalogRepository) EditProduct(p domain.Product) (domain.Product, erro
 
 	if err := tx.Error; err != nil {
 		log.Print("db_err EditProduct: ", err)
-		return domain.Product{}, errors.New("error deleting category")
+		return domain.Product{}, errors.New("error updating product")
 	}
 
 	if tx.RowsAffected == 0 {
-		return domain.Product{}, errors.New("category not found, failed to delete")
+		return domain.Product{}, errors.New("product not found, failed to update")
 	}
 
 	return updated, nil

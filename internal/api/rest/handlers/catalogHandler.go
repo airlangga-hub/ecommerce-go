@@ -56,7 +56,7 @@ func (h *CatalogHandler) GetCategories(ctx *fiber.Ctx) error {
 		return rest.ErrorResponse(ctx, 404, err)
 	}
 
-	return rest.OkResponse(ctx, "get categories", categories)
+	return rest.OkResponse(ctx, "get categories success", categories)
 }
 
 
@@ -69,7 +69,7 @@ func (h *CatalogHandler) GetCategoryByID(ctx *fiber.Ctx) error {
 		return rest.ErrorResponse(ctx, 404, err)
 	}
 
-	return rest.OkResponse(ctx, "get category by id", category)
+	return rest.OkResponse(ctx, "get category by id success", category)
 }
 
 
@@ -85,7 +85,7 @@ func (h *CatalogHandler) CreateCategory(ctx *fiber.Ctx) error {
 		return rest.ErrorResponse(ctx, 500, err)
 	}
 
-	return rest.OkResponse(ctx, "category created", nil)
+	return rest.OkResponse(ctx, "category created successfully", nil)
 }
 
 
@@ -96,7 +96,7 @@ func (h *CatalogHandler) EditCategory(ctx *fiber.Ctx) error {
 	createCategory := dto.CreateCategoryRequest{}
 
 	if err := ctx.BodyParser(&createCategory); err != nil {
-		return rest.BadRequest(ctx, "invalid request body")
+		return rest.BadRequest(ctx, "invalid request body to update category")
 	}
 
 	category, err := h.Svc.EditCategory(uint(id), createCategory)
@@ -104,7 +104,7 @@ func (h *CatalogHandler) EditCategory(ctx *fiber.Ctx) error {
 		return rest.ErrorResponse(ctx, 500, err)
 	}
 
-	return rest.OkResponse(ctx, "edit category", category)
+	return rest.OkResponse(ctx, "edit category success", category)
 }
 
 
@@ -116,43 +116,101 @@ func (h *CatalogHandler) DeleteCategory(ctx *fiber.Ctx) error {
 		return rest.ErrorResponse(ctx, 500, err)
 	}
 
-	return rest.OkResponse(ctx, "delete category", nil)
+	return rest.OkResponse(ctx, "delete category success", nil)
 }
 
 
 func (h *CatalogHandler) CreateProducts(ctx *fiber.Ctx) error {
 
-	
+	createProdReq := dto.CreateProduct{}
 
-	return rest.OkResponse(ctx, "create products", nil)
+	if err := ctx.BodyParser(&createProdReq); err != nil {
+		return rest.BadRequest(ctx, "invalid request body to create product")
+	}
+
+	user := h.Svc.Auth.GetCurrentUser(ctx)
+
+	if err := h.Svc.CreateProduct(user.ID, createProdReq); err != nil {
+		return rest.ErrorResponse(ctx, 500, err)
+	}
+
+	return rest.OkResponse(ctx, "create product success", nil)
 }
 
 
 func (h *CatalogHandler) GetProducts(ctx *fiber.Ctx) error {
 
-	return rest.OkResponse(ctx, "get products", nil)
+	products, err := h.Svc.GetProducts()
+
+	if err != nil {
+		return rest.ErrorResponse(ctx, 404, err)
+	}
+
+	return rest.OkResponse(ctx, "get products success", products)
 }
 
 
 func (h *CatalogHandler) GetProductByID(ctx *fiber.Ctx) error {
 
-	return rest.OkResponse(ctx, "get products", nil)
+	id, _ := strconv.Atoi(ctx.Params("id"))
+
+	product, err := h.Svc.GetProductByID(uint(id))
+
+	if err != nil {
+		return rest.ErrorResponse(ctx, 404, err)
+	}
+
+	return rest.OkResponse(ctx, "get product by id success", product)
 }
 
 
 func (h *CatalogHandler) EditProduct(ctx *fiber.Ctx) error {
 
-	return rest.OkResponse(ctx, "get products", nil)
+	id, _ := strconv.Atoi(ctx.Params("id"))
+
+	createProdReq := dto.CreateProduct{}
+
+	if err := ctx.BodyParser(&createProdReq); err != nil {
+		return rest.BadRequest(ctx, "invalid request body to create product")
+	}
+
+	product, err := h.Svc.EditProduct(uint(id), createProdReq)
+
+	if err != nil {
+		return rest.ErrorResponse(ctx, 500, err)
+	}
+
+	return rest.OkResponse(ctx, "edit product success", product)
 }
 
 
 func (h *CatalogHandler) UpdateStock(ctx *fiber.Ctx) error {
 
-	return rest.OkResponse(ctx, "get products", nil)
+	id, _ := strconv.Atoi(ctx.Params("id"))
+
+	updateStock := dto.UpdateStock{}
+
+	if err := ctx.BodyParser(&updateStock); err != nil {
+		return rest.BadRequest(ctx, "invalid request body to create product")
+	}
+
+	product, err := h.Svc.UpdateStock(uint(id), updateStock)
+
+	if err != nil {
+		return rest.ErrorResponse(ctx, 500, err)
+	}
+
+	return rest.OkResponse(ctx, "update stock success", product)
 }
 
 
 func (h *CatalogHandler) DeleteProduct(ctx *fiber.Ctx) error {
 
-	return rest.OkResponse(ctx, "get products", nil)
+	id, _ := strconv.Atoi(ctx.Params("id"))
+
+	if err := h.Svc.DeleteProduct(uint(id)); err != nil {
+		return rest.ErrorResponse(ctx, 500, err)
+	}
+
+	return rest.OkResponse(ctx, "delete product success", nil)
 }
