@@ -25,8 +25,8 @@ func SetupCatalogRoutes(rh *rest.HttpHandler) {
 	handler := &CatalogHandler{Svc: catalogService}
 
 	// Public endpoints
-	app.Get("/products")
-	app.Get("/products/:id")
+	app.Get("/products", handler.GetProducts)
+	app.Get("/products/:id", handler.GetProductByID)
 
 	app.Get("/categories", handler.GetCategories)
 	app.Get("/categories/:id", handler.GetCategoryByID)
@@ -40,7 +40,7 @@ func SetupCatalogRoutes(rh *rest.HttpHandler) {
 
 	sellerRoutes.Post("/products", handler.CreateProducts)
 	sellerRoutes.Get("/products", handler.GetProducts)
-	sellerRoutes.Get("/products/:id", handler.GetProduct)
+	sellerRoutes.Get("/products/:id", handler.GetProductByID)
 	sellerRoutes.Put("/products/:id", handler.EditProduct)
 	sellerRoutes.Patch("/products/:id", handler.UpdateStock) // update stock
 	sellerRoutes.Delete("/products/:id", handler.DeleteProduct)
@@ -99,7 +99,7 @@ func (h *CatalogHandler) GetProducts(ctx *fiber.Ctx) error {
 }
 
 
-func (h *CatalogHandler) GetProduct(ctx *fiber.Ctx) error {
+func (h *CatalogHandler) GetProductByID(ctx *fiber.Ctx) error {
 
 	return rest.OkResponse(ctx, "get products", nil)
 }
