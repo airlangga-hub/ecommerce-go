@@ -85,5 +85,5 @@ func (ur *userRepository) UpdateUser(id uint, user domain.User) (domain.User, er
 
 
 func (ur *userRepository) CreateBankAccount(bank domain.BankAccount) error {
-	return ur.db.Create(bank).Error
+	return ur.db.Create(&bank).Error
 }
