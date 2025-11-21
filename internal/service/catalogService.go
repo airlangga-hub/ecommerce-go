@@ -58,7 +58,7 @@ func (s *CatalogService) GetCategoryByID(id uint) (*domain.Category, error) {
 
 func (s *CatalogService) EditCategory(id uint, input dto.CreateCategoryRequest) (*domain.Category, error) {
 
-	category := domain.Category{
+	category := &domain.Category{
 		ID: id,
 		Name: input.Name,
 		ParentID: input.ParentID,
@@ -66,9 +66,9 @@ func (s *CatalogService) EditCategory(id uint, input dto.CreateCategoryRequest) 
 		DisplayOrder: input.DisplayOrder,
 	}
 
-	updatedCategory, err := s.Repo.EditCategory(&category)
+	category, err := s.Repo.EditCategory(category)
 
-	return updatedCategory, err
+	return category, err
 }
 
 
@@ -125,9 +125,9 @@ func (s *CatalogService) EditProduct(id uint, input dto.CreateProduct) (domain.P
 		Stock: input.Stock,
 	}
 
-	updated, err := s.Repo.EditProduct(product)
+	product, err := s.Repo.EditProduct(product)
 
-	return updated, err
+	return product, err
 }
 
 
@@ -138,9 +138,9 @@ func (s *CatalogService) UpdateStock(id uint, input dto.UpdateStock) (domain.Pro
 		Stock: input.Stock,
 	}
 
-	updated, err := s.Repo.EditProduct(product)
+	product, err := s.Repo.EditProduct(product)
 
-	return updated, err
+	return product, err
 }
 
 
