@@ -15,9 +15,9 @@ import (
 
 
 type UserService struct {
-	UserRepo repository.UserRepository
-	Auth *helper.Auth
-	Config *config.AppConfig
+	Repo 	repository.UserRepository
+	Auth 	*helper.Auth
+	Config 	*config.AppConfig
 }
 
 
@@ -27,7 +27,7 @@ func (s *UserService) SignUp(input dto.UserSignUp) (string, error) {
 		return "", err
 	}
 
-	user, err := s.UserRepo.CreateUser(
+	user, err := s.Repo.CreateUser(
 		&domain.User{
 			Email: input.Email,
 			Password: hashedPassword,
@@ -43,7 +43,7 @@ func (s *UserService) SignUp(input dto.UserSignUp) (string, error) {
 
 
 func (s *UserService) FindUserByEmail(email string) (domain.User, error) {
-	user, err := s.UserRepo.FindUser(email)
+	user, err := s.Repo.FindUser(email)
 
 	return user, err
 }
@@ -64,7 +64,7 @@ func (s *UserService) UserLogin(email, password string) (string, error) {
 }
 
 func (s *UserService) isUserVerified(id uint) bool {
-	user, err := s.UserRepo.FindUserByID(id)
+	user, err := s.Repo.FindUserByID(id)
 
 	return err == nil && user.Verified
 }
@@ -88,13 +88,13 @@ func (s *UserService) CreateVerificationCode(user domain.User) error {
 		Code: code,
 	}
 
-	_, err = s.UserRepo.UpdateUser(user.ID, u)
+	_, err = s.Repo.UpdateUser(user.ID, u)
 	if err != nil {
 		return errors.New("failed to update user verification code")
 	}
 
 	// find user
-	u, err = s.UserRepo.FindUserByID(user.ID)
+	u, err = s.Repo.FindUserByID(user.ID)
 	if err != nil {
 		return errors.New("user does not exist")
 	}
@@ -120,7 +120,7 @@ func (s *UserService) VerifyCode(id uint, code int) error {
 		return errors.New("user already verified")
 	}
 
-	user, err := s.UserRepo.FindUserByID(id)
+	user, err := s.Repo.FindUserByID(id)
 
 	if user.Code != code {
 		return errors.New("invalid verification code")
@@ -136,7 +136,7 @@ func (s *UserService) VerifyCode(id uint, code int) error {
 		Verified: true,
 	}
 
-	_, err = s.UserRepo.UpdateUser(user.ID, u)
+	_, err = s.Repo.UpdateUser(user.ID, u)
 
 	if err != nil {
 		return errors.New("failed to update user verified status")
@@ -163,7 +163,7 @@ func (s *UserService) UpdateProfile(id uint, input any) error {
 
 func (s *UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, error) {
 	// fetch user from db
-	user, err := s.UserRepo.FindUserByID(id)
+	user, err := s.Repo.FindUserByID(id)
 	if err != nil {
 		return "", errors.New("user not found")
 	}
@@ -172,7 +172,7 @@ func (s *UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, 
 	}
 
 	// update user
-	user, err = s.UserRepo.UpdateUser(
+	user, err = s.Repo.UpdateUser(
 		user.ID,
 		domain.User{
 			FirstName: input.FirstName,
@@ -192,7 +192,7 @@ func (s *UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, 
 	}
 
 	// create bank account information in db
-	if err := s.UserRepo.CreateBankAccount(domain.BankAccount{
+	if err := s.Repo.CreateBankAccount(domain.BankAccount{
 		UserID: user.ID,
 		BankAccountNumber: input.BankAccountNumber,
 		SwiftCode: input.SwiftCode,

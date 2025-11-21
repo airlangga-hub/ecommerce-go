@@ -18,7 +18,7 @@ func SetupCatalogRoutes(rh *rest.HttpHandler) {
 	app := rh.App
 
 	catalogService := &service.CatalogService{
-		CatalogRepo: repository.NewCatalogRepository(rh.DB),
+		Repo: repository.NewCatalogRepository(rh.DB),
 		Auth: rh.Auth,
 		Config: rh.Config,
 	}

@@ -11,13 +11,14 @@ import (
 
 
 type CatalogService struct {
-	CatalogRepo repository.CatalogRepository
+	Repo repository.CatalogRepository
 	Auth *helper.Auth
 	Config *config.AppConfig
 }
 
 
-func (cs *CatalogService) CreateCategory(input dto.CreateCategoryRequest) error {
+func (s *CatalogService) CreateCategory(input dto.CreateCategoryRequest) error {
+
 	category := domain.Category{
 		Name: input.Name,
 		ParentID: input.ParentID,
@@ -25,9 +26,7 @@ func (cs *CatalogService) CreateCategory(input dto.CreateCategoryRequest) error 
 		DisplayOrder: input.DisplayOrder,
 	}
 
-	if err := cs.CatalogRepo.CreateCategory(&category); err != nil {
-		return err
-	}
+	err := s.Repo.CreateCategory(&category)
 
-	return nil
+	return err
 }
