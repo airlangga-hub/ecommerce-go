@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strconv"
+
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest"
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"github.com/airlangga-hub/ecommerce-go/internal/repository"
@@ -48,26 +50,38 @@ func SetupCatalogRoutes(rh *rest.HttpHandler) {
 
 
 func (h *CatalogHandler) GetCategories(ctx *fiber.Ctx) error {
+	categories, err := h.Svc.GetCategories()
 
-	return rest.OkResponse(ctx, "get categories", nil)
+	if err != nil {
+		return rest.ErrorResponse(ctx, 404, err)
+	}
+
+	return rest.OkResponse(ctx, "get categories", categories)
 }
 
 
 func (h *CatalogHandler) GetCategoryByID(ctx *fiber.Ctx) error {
 
-	return rest.OkResponse(ctx, "get category by id", nil)
+	id, _ := strconv.Atoi(ctx.Params("id"))
+
+	category, err := h.Svc.GetCategoryByID(uint(id))
+	if err != nil {
+		return rest.ErrorResponse(ctx, 404, err)
+	}
+
+	return rest.OkResponse(ctx, "get category by id", category)
 }
 
 
 func (h *CatalogHandler) CreateCategory(ctx *fiber.Ctx) error {
 
-	category := dto.CreateCategoryRequest{}
+	createCategory := dto.CreateCategoryRequest{}
 
-	if err := ctx.BodyParser(&category); err != nil {
+	if err := ctx.BodyParser(&createCategory); err != nil {
 		return rest.BadRequest(ctx, "invalid request body")
 	}
 
-	if err := h.Svc.CreateCategory(category); err != nil {
+	if err := h.Svc.CreateCategory(createCategory); err != nil {
 		return rest.ErrorResponse(ctx, 500, err)
 	}
 
@@ -77,11 +91,30 @@ func (h *CatalogHandler) CreateCategory(ctx *fiber.Ctx) error {
 
 func (h *CatalogHandler) EditCategory(ctx *fiber.Ctx) error {
 
-	return rest.OkResponse(ctx, "edit category", nil)
+	id, _ := strconv.Atoi(ctx.Params("id"))
+
+	createCategory := dto.CreateCategoryRequest{}
+
+	if err := ctx.BodyParser(&createCategory); err != nil {
+		return rest.BadRequest(ctx, "invalid request body")
+	}
+
+	category, err := h.Svc.EditCategory(uint(id), createCategory)
+	if err != nil {
+		rest.ErrorResponse(ctx, 500, err)
+	}
+
+	return rest.OkResponse(ctx, "edit category", category)
 }
 
 
 func (h *CatalogHandler) DeleteCategory(ctx *fiber.Ctx) error {
+
+	id, _ := strconv.Atoi(ctx.Params("id"))
+
+	if err := h.Svc.DeleteCategory(uint(id)); err != nil {
+		return rest.ErrorResponse(ctx, 500, err)
+	}
 
 	return rest.OkResponse(ctx, "delete category", nil)
 }

@@ -128,7 +128,7 @@ func (h *UserHandler) Verify(ctx *fiber.Ctx) error {
 func (h *UserHandler) GetVerificationCode(ctx *fiber.Ctx) error {
 	user := h.Svc.Auth.GetCurrentUser(ctx)
 
-	err := h.Svc.CreateVerificationCode(user)
+	code, err := h.Svc.CreateVerificationCode(user)
 
 	if err != nil {
 		return ctx.Status(500).JSON(fiber.Map{
@@ -139,6 +139,7 @@ func (h *UserHandler) GetVerificationCode(ctx *fiber.Ctx) error {
 
 	return ctx.Status(200).JSON(fiber.Map{
 		"message": "get verification code",
+		"code": code,
 	})
 }
 

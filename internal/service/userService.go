@@ -10,7 +10,6 @@ import (
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"github.com/airlangga-hub/ecommerce-go/internal/helper"
 	"github.com/airlangga-hub/ecommerce-go/internal/repository"
-	"github.com/airlangga-hub/ecommerce-go/pkg/notification"
 )
 
 
@@ -63,23 +62,23 @@ func (s *UserService) UserLogin(email, password string) (string, error) {
 	return s.Auth.GenerateToken(user.ID, user.Email, user.UserType)
 }
 
-func (s *UserService) isUserVerified(id uint) bool {
+func (s *UserService) isUserVerified(id uint) (domain.User, bool) {
 	user, err := s.Repo.FindUserByID(id)
 
-	return err == nil && user.Verified
+	return user, err == nil && user.Verified
 }
 
 
-func (s *UserService) CreateVerificationCode(user domain.User) error {
+func (s *UserService) CreateVerificationCode(user domain.User) (int, error) {
 	// if user already verified
-	if s.isUserVerified(user.ID) {
-		return errors.New("user already verified")
+	if _, verified := s.isUserVerified(user.ID); verified {
+		return 0, errors.New("user already verified")
 	}
 
 	// generate verification code
 	code, err := s.Auth.GenerateCode()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	// update user
@@ -90,44 +89,39 @@ func (s *UserService) CreateVerificationCode(user domain.User) error {
 
 	_, err = s.Repo.UpdateUser(user.ID, u)
 	if err != nil {
-		return errors.New("failed to update user verification code")
+		return 0, errors.New("failed to update user verification code")
 	}
 
-	// find user
-	u, err = s.Repo.FindUserByID(user.ID)
-	if err != nil {
-		return errors.New("user does not exist")
-	}
-	if u.Phone == "" {
-		return errors.New("user does not have a phone number")
-	}
+	return code, nil
 
 	// send SMS
-	notificationClient := notification.NewNotificationClient(s.Config)
+	// if user.Phone == "" {
+	// 	return 0, errors.New("user does not have a phone number")
+	// }
+	
+	// notificationClient := notification.NewNotificationClient(s.Config)
 
-	msg := fmt.Sprintf("Your verification code is %v", code)
+	// msg := fmt.Sprintf("Your verification code is %v", code)
 
-	if err := notificationClient.SendSMS(u.Phone, msg); err != nil {
-		return errors.New("error sending sms")
-	}
+	// if err := notificationClient.SendSMS(user.Phone, msg); err != nil {
+	// 	return errors.New("error sending sms")
+	// }
 
-	return nil
+	// return nil
 }
 
 
 func (s *UserService) VerifyCode(id uint, code int) error {
-	if s.isUserVerified(id) {
+
+	user, verified := s.isUserVerified(id)
+	if verified {
 		return errors.New("user already verified")
 	}
-
-	user, err := s.Repo.FindUserByID(id)
 
 	if user.Code != code {
 		return errors.New("invalid verification code")
 	}
-	if err != nil {
-		return err
-	}
+
 	if user.Expiry.Before(time.Now()) {
 		return errors.New("verification code expired")
 	}
@@ -136,7 +130,7 @@ func (s *UserService) VerifyCode(id uint, code int) error {
 		Verified: true,
 	}
 
-	_, err = s.Repo.UpdateUser(user.ID, u)
+	_, err := s.Repo.UpdateUser(user.ID, u)
 
 	if err != nil {
 		return errors.New("failed to update user verified status")
@@ -165,8 +159,9 @@ func (s *UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, 
 	// fetch user from db
 	user, err := s.Repo.FindUserByID(id)
 	if err != nil {
-		return "", errors.New("user not found")
+		return "", err
 	}
+
 	if user.UserType == domain.SELLER {
 		return "", errors.New("user is already a seller")
 	}
@@ -188,7 +183,7 @@ func (s *UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, 
 	// generate token
 	token, err := s.Auth.GenerateToken(user.ID, user.Email, user.UserType)
 	if err != nil {
-		return "", errors.New("failed to generate token")
+		return "", err
 	}
 
 	// create bank account information in db

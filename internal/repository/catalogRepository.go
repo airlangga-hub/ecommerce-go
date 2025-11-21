@@ -43,9 +43,15 @@ func (cr *catalogRepository) FindCategories() ([]*domain.Category, error) {
 
 	categories := []*domain.Category{}
 
-	if err := cr.db.Find(&categories).Error; err != nil {
-		log.Print("db_err FindCategories: ", err)
+	tx := cr.db.Find(&categories)
+
+	if tx.Error != nil {
+		log.Print("db_err FindCategories: ", tx.Error)
 		return nil, errors.New("error finding categories")
+	}
+
+	if len(categories) < 1 {
+		return nil, errors.New("no categories found")
 	}
 
 	return categories, nil
@@ -67,9 +73,15 @@ func (cr *catalogRepository) FindCategoryByID(id uint) (*domain.Category, error)
 
 func (cr *catalogRepository) EditCategory(c *domain.Category) (*domain.Category, error) {
 
-	if err := cr.db.Save(c).Error; err != nil {
-		log.Print("db_err EditCategory: ", err)
+	tx := cr.db.Updates(c)
+
+	if tx.Error != nil {
+		log.Print("db_err EditCategory: ", tx.Error)
 		return nil, errors.New("failed to update category")
+	}
+
+	if tx.RowsAffected == 0 {
+		return nil, errors.New("category not found")
 	}
 
 	return c, nil
@@ -77,10 +89,16 @@ func (cr *catalogRepository) EditCategory(c *domain.Category) (*domain.Category,
 
 
 func (cr *catalogRepository) DeleteCategory(id uint) error {
-	
-	if err := cr.db.Delete(&domain.Category{ID: id}).Error; err != nil {
-		log.Print("db_err DeleteCategory: ", err)
+
+	tx := cr.db.Delete(&domain.Category{ID: id})
+
+	if tx.Error != nil {
+		log.Print("db_err DeleteCategory: ", tx.Error)
 		return errors.New("error deleting category")
+	}
+
+	if tx.RowsAffected == 0 {
+		return errors.New("category not found, failed to delete")
 	}
 
 	return nil
