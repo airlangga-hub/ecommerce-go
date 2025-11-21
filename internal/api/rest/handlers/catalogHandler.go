@@ -34,7 +34,7 @@ func SetupCatalogRoutes(rh *rest.HttpHandler) {
 	// Private endpoints
 	sellerRoutes := app.Group("/seller", handler.Svc.Auth.AuthorizeSeller)
 
-	sellerRoutes.Post("/categories", handler.CreateCategories)
+	sellerRoutes.Post("/categories", handler.CreateCategory)
 	sellerRoutes.Patch("/categories/:id", handler.EditCategory)
 	sellerRoutes.Delete("/categories/:id", handler.DeleteCategory)
 
@@ -59,7 +59,7 @@ func (h *CatalogHandler) GetCategoryByID(ctx *fiber.Ctx) error {
 }
 
 
-func (h *CatalogHandler) CreateCategories(ctx *fiber.Ctx) error {
+func (h *CatalogHandler) CreateCategory(ctx *fiber.Ctx) error {
 
 	category := dto.CreateCategoryRequest{}
 
@@ -71,7 +71,7 @@ func (h *CatalogHandler) CreateCategories(ctx *fiber.Ctx) error {
 		return rest.ErrorResponse(ctx, 500, err)
 	}
 
-	return rest.OkResponse(ctx, "category create", nil)
+	return rest.OkResponse(ctx, "category created", nil)
 }
 
 
