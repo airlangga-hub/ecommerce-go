@@ -40,7 +40,7 @@ func SetupCatalogRoutes(rh *rest.HttpHandler) {
 	sellerRoutes.Patch("/categories/:id", handler.EditCategory)
 	sellerRoutes.Delete("/categories/:id", handler.DeleteCategory)
 
-	sellerRoutes.Post("/products", handler.CreateProducts)
+	sellerRoutes.Post("/products", handler.CreateProduct)
 	sellerRoutes.Get("/products", handler.GetProducts)
 	sellerRoutes.Get("/products/:id", handler.GetProductByID)
 	sellerRoutes.Put("/products/:id", handler.EditProduct)
@@ -120,7 +120,7 @@ func (h *CatalogHandler) DeleteCategory(ctx *fiber.Ctx) error {
 }
 
 
-func (h *CatalogHandler) CreateProducts(ctx *fiber.Ctx) error {
+func (h *CatalogHandler) CreateProduct(ctx *fiber.Ctx) error {
 
 	createProdReq := dto.CreateProduct{}
 
