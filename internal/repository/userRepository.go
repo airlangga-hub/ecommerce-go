@@ -75,8 +75,8 @@ func (ur *userRepository) UpdateUser(id uint, user domain.User) (domain.User, er
 
 	tx := ur.db.Updates(user).Scan(&updated)
 
-	if tx.Error != nil {
-		log.Println("db_err UpdateUser: ", tx.Error)
+	if err := tx.Error; err != nil {
+		log.Println("db_err UpdateUser: ", err)
 		return domain.User{}, errors.New("failed to update user")
 	}
 

@@ -122,6 +122,8 @@ func (h *CatalogHandler) DeleteCategory(ctx *fiber.Ctx) error {
 
 func (h *CatalogHandler) CreateProducts(ctx *fiber.Ctx) error {
 
+	
+
 	return rest.OkResponse(ctx, "create products", nil)
 }
 
