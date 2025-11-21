@@ -5,7 +5,7 @@ import "time"
 
 type Category struct {
 	ID 				uint 		`json:"id" gorm:"PrimaryKey"`
-	Name 			string 		`json:"name" gorm:"index"`
+	Name 			string 		`json:"name" gorm:"index;unique;not null"`
 	ParentID 		uint 		`json:"parent_id"`
 	Products 		[]Product 	`json:"products"`
 	ImageURL 		string	 	`json:"image_url"`
