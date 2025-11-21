@@ -8,6 +8,7 @@ type Category struct {
 	Name 			string 		`json:"name" gorm:"index"`
 	ParentID 		uint 		`json:"parent_id"`
 	Products 		[]Product 	`json:"products"`
+	ImageURL 		string	 	`json:"image_url"`
 	DisplayOrder 	int 		`json:"display_order"`
 	CreatedAt		time.Time	`json:"created_at" gorm:"default:current_timestamp"`
 	UpdatedAt		time.Time	`json:"updated_at" gorm:"default:current_timestamp"`

@@ -60,15 +60,18 @@ func (h *CatalogHandler) GetCategoryByID(ctx *fiber.Ctx) error {
 
 
 func (h *CatalogHandler) CreateCategories(ctx *fiber.Ctx) error {
-	// user := h.GetCurrentUser(ctx)
 
-	category := &dto.CreateCategoryRequest{}
+	category := dto.CreateCategoryRequest{}
 
-	if err := ctx.BodyParser(category); err != nil {
-		rest.BadRequest(ctx, "invalid request body")
+	if err := ctx.BodyParser(&category); err != nil {
+		return rest.BadRequest(ctx, "invalid request body")
 	}
 
-	return rest.OkResponse(ctx, "create categories", nil)
+	if err := h.Svc.CreateCategory(category); err != nil {
+		return rest.ErrorResponse(ctx, 500, err)
+	}
+
+	return rest.OkResponse(ctx, "category create", nil)
 }
 
 

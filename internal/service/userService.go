@@ -42,7 +42,7 @@ func (s *UserService) SignUp(input dto.UserSignUp) (string, error) {
 }
 
 
-func (s *UserService) FindUserByEmail(email string) (*domain.User, error) {
+func (s *UserService) FindUserByEmail(email string) (domain.User, error) {
 	user, err := s.UserRepo.FindUser(email)
 
 	return user, err
@@ -83,7 +83,7 @@ func (s *UserService) CreateVerificationCode(user domain.User) error {
 	}
 
 	// update user
-	u := &domain.User{
+	u := domain.User{
 		Expiry: time.Now().Add(time.Minute * 30),
 		Code: code,
 	}
@@ -132,7 +132,7 @@ func (s *UserService) VerifyCode(id uint, code int) error {
 		return errors.New("verification code expired")
 	}
 
-	u := &domain.User{
+	u := domain.User{
 		Verified: true,
 	}
 
@@ -174,7 +174,7 @@ func (s *UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, 
 	// update user
 	user, err = s.UserRepo.UpdateUser(
 		user.ID,
-		&domain.User{
+		domain.User{
 			FirstName: input.FirstName,
 			LastName: input.LastName,
 			Phone: input.PhoneNumber,
@@ -192,7 +192,7 @@ func (s *UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, 
 	}
 
 	// create bank account information in db
-	if err := s.UserRepo.CreateBankAccount(&domain.BankAccount{
+	if err := s.UserRepo.CreateBankAccount(domain.BankAccount{
 		UserID: user.ID,
 		BankAccountNumber: input.BankAccountNumber,
 		SwiftCode: input.SwiftCode,
