@@ -118,6 +118,7 @@ func (s *CatalogService) EditProduct(id uint, input dto.CreateProduct) (domain.P
 
 	product := domain.Product{
 		ID: id,
+		Name: input.Name,
 		Description: input.Description,
 		CategoryID: input.CategoryID,
 		ImageURL: input.ImageURL,
