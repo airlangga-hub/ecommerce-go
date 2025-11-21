@@ -58,15 +58,28 @@ func (s *CatalogService) GetCategoryByID(id uint) (*domain.Category, error) {
 
 func (s *CatalogService) EditCategory(id uint, input dto.CreateCategoryRequest) (*domain.Category, error) {
 
-	category := &domain.Category{
-		ID: id,
-		Name: input.Name,
-		ParentID: input.ParentID,
-		ImageURL: input.ImageURL,
-		DisplayOrder: input.DisplayOrder,
+	category, err := s.Repo.FindCategoryByID(id)
+	if err != nil {
+		return nil, err
 	}
 
-	category, err := s.Repo.EditCategory(category)
+	if len(input.Name) > 0 {
+		category.Name = input.Name
+	}
+
+	if input.ParentID > 0 {
+		category.ParentID = input.ParentID
+	}
+
+	if len(input.ImageURL) > 0 {
+		category.ImageURL = input.ImageURL
+	}
+
+	if input.DisplayOrder > 0 {
+		category.DisplayOrder = input.DisplayOrder
+	}
+
+	category, err = s.Repo.EditCategory(category)
 
 	return category, err
 }
@@ -116,17 +129,36 @@ func (s *CatalogService) GetProductByID(id uint) (domain.Product, error) {
 
 func (s *CatalogService) EditProduct(id uint, input dto.CreateProduct) (domain.Product, error) {
 
-	product := domain.Product{
-		ID: id,
-		Name: input.Name,
-		Description: input.Description,
-		CategoryID: input.CategoryID,
-		ImageURL: input.ImageURL,
-		Price: input.Price,
-		Stock: input.Stock,
+	product, err := s.Repo.FindProductByID(id)
+	if err != nil {
+		return domain.Product{}, err
 	}
 
-	product, err := s.Repo.EditProduct(product)
+	if len(input.Name) > 0 {
+		product.Name = input.Name
+	}
+
+	if len(input.Description) > 0 {
+		product.Description = input.Description
+	}
+
+	if input.CategoryID > 0 {
+		product.CategoryID = input.CategoryID
+	}
+
+	if len(input.ImageURL) > 0 {
+		product.ImageURL = input.ImageURL
+	}
+
+	if input.Price > 0 {
+		product.Price = input.Price
+	}
+
+	if input.Stock > 0 {
+		product.Stock = input.Stock
+	}
+
+	product, err = s.Repo.EditProduct(product)
 
 	return product, err
 }
