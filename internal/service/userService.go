@@ -98,7 +98,7 @@ func (s *UserService) CreateVerificationCode(user domain.User) (int, error) {
 	// if user.Phone == "" {
 	// 	return 0, errors.New("user does not have a phone number")
 	// }
-	
+
 	// notificationClient := notification.NewNotificationClient(s.Config)
 
 	// msg := fmt.Sprintf("Your verification code is %v", code)
@@ -166,6 +166,16 @@ func (s *UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, 
 		return "", errors.New("user is already a seller")
 	}
 
+	// create bank account information in db
+	if err := s.Repo.CreateBankAccount(domain.BankAccount{
+		UserID: user.ID,
+		BankAccountNumber: input.BankAccountNumber,
+		SwiftCode: input.SwiftCode,
+		PaymentType: input.PaymentType,
+	}); err != nil {
+		return "", fmt.Errorf("failed to create bank account in db: %v", err)
+	}
+
 	// update user
 	user, err = s.Repo.UpdateUser(
 		user.ID,
@@ -184,16 +194,6 @@ func (s *UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, 
 	token, err := s.Auth.GenerateToken(user.ID, user.Email, user.UserType)
 	if err != nil {
 		return "", err
-	}
-
-	// create bank account information in db
-	if err := s.Repo.CreateBankAccount(domain.BankAccount{
-		UserID: user.ID,
-		BankAccountNumber: input.BankAccountNumber,
-		SwiftCode: input.SwiftCode,
-		PaymentType: input.PaymentType,
-	}); err != nil {
-		return "", fmt.Errorf("failed to create bank account in db: %v", err)
 	}
 
 	return token, nil
