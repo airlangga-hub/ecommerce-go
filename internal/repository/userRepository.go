@@ -6,7 +6,6 @@ import (
 
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 
@@ -69,18 +68,23 @@ func (ur *userRepository) FindUserByID(id uint) (domain.User, error) {
 
 
 func (ur *userRepository) UpdateUser(id uint, user domain.User) (domain.User, error) {
-	u := domain.User{
-		ID: id,
-	}
 
-	err := ur.db.Model(&u).Clauses(clause.Returning{}).Updates(user).Error
+	user.ID = id
 
-	if err != nil {
-		log.Println("error on update: ", err)
+	updated := domain.User{}
+
+	tx := ur.db.Updates(user).Scan(&updated)
+
+	if tx.Error != nil {
+		log.Println("db_err UpdateUser: ", tx.Error)
 		return domain.User{}, errors.New("failed to update user")
 	}
 
-	return u, nil
+	if tx.RowsAffected == 0 {
+		return domain.User{}, errors.New("user not found, failed to update")
+	}
+
+	return updated, nil
 }
 
 
