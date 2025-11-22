@@ -13,8 +13,4 @@ type CartItem struct {
 	UserID    uint      `json:"user_id" gorm:"uniqueIndex:idx_user_product"`
 	ProductID uint      `json:"product_id" gorm:"uniqueIndex:idx_user_product"`
 	SellerID  uint      `json:"seller_id"`
-
-	User    User    `gorm:"foreignKey:UserID"`
-	Product Product `gorm:"foreignKey:ProductID"`
-	Seller  User    `gorm:"foreignKey:SellerID"`
 }

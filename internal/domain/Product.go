@@ -13,7 +13,4 @@ type Product struct {
 	CategoryID  uint      	`json:"category_id"`
 	CreatedAt   time.Time 	`json:"created_at" gorm:"default:current_timestamp"`
 	UpdatedAt   time.Time 	`json:"updated_at" gorm:"default:current_timestamp"`
-
-	User     	User     	`gorm:"foreignKey:UserID"`
-	Category 	Category	`gorm:"foreignKey:CategoryID"`
 }
