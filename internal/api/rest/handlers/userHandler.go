@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest"
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
