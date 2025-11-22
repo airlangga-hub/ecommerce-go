@@ -2,7 +2,7 @@ package domain
 
 import "time"
 
-type Cart struct {
+type CartItem struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
 	Name      string    `json:"name"`
 	ImageURL  string    `json:"image_url"`
