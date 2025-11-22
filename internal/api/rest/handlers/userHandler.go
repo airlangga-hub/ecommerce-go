@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"errors"
+
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest"
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"github.com/airlangga-hub/ecommerce-go/internal/repository"
@@ -19,6 +21,7 @@ func SetupUserRoutes(rh *rest.HttpHandler) {
 
 	userService := &service.UserService{
 		Repo: repository.NewUserRepository(rh.DB),
+		CRepo: repository.NewCatalogRepository(rh.DB),
 		Auth: rh.Auth,
 		Config: rh.Config,
 	}
@@ -162,8 +165,27 @@ func (h *UserHandler) GetProfile(ctx *fiber.Ctx) error {
 
 
 func (h *UserHandler) AddToCart(ctx *fiber.Ctx) error {
+	
+	cartReq := dto.CartRequest{}
+	
+	if err := ctx.BodyParser(&cartReq); err != nil {
+		return rest.BadRequest(ctx, "invalid cart request body")
+	}
+	
+	user := h.Svc.Auth.GetCurrentUser(ctx)
+	
+	cartItems, err := h.Svc.CreateCart(cartReq, user.ID)
+	
+	if err != nil {
+		return rest.ErrorResponse(ctx, 500, err)
+	}
+	if cartItems == nil {
+		return rest.ErrorResponse(ctx, 500, errors.New("nil cart items"))
+	}
+	
 	return ctx.Status(200).JSON(fiber.Map{
 		"message": "add to cart success",
+		"data": cartItems,
 	})
 }
 

@@ -10,8 +10,8 @@ type CartItem struct {
 	Qty       uint      `json:"qty"`
 	CreatedAt time.Time `json:"created_at" gorm:"default:current_timestamp"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"default:current_timestamp"`
-	UserID    uint      `json:"user_id"`
-	ProductID uint      `json:"product_id"`
+	UserID    uint      `json:"user_id" gorm:"uniqueIndex:idx_user_product"`
+	ProductID uint      `json:"product_id" gorm:"uniqueIndex:idx_user_product"`
 	SellerID  uint      `json:"seller_id"`
 
 	User    User    `gorm:"foreignKey:UserID"`

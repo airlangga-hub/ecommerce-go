@@ -15,6 +15,7 @@ import (
 
 type UserService struct {
 	Repo 	repository.UserRepository
+	CRepo	repository.CatalogRepository
 	Auth 	*helper.Auth
 	Config 	*config.AppConfig
 }
@@ -205,8 +206,28 @@ func (s *UserService) FindCart(id uint) ([]any, error) {
 }
 
 
-func (s *UserService) CreateCart(input any, user domain.User) ([]any, error) {
-	return nil, nil
+func (s *UserService) CreateCart(input dto.CartRequest, userID uint) ([]*domain.CartItem, error) {
+	
+	product, err := s.CRepo.FindProductByID(input.ProductID)
+	if err != nil {
+		return nil, err
+	}
+	
+	cartItem := domain.CartItem{
+		ProductID: input.ProductID,
+		Qty: input.Qty,
+		Name: product.Name,
+		ImageURL: product.ImageURL,
+		Price: product.Price,
+		UserID: userID,
+		SellerID: product.UserID,
+	}
+	
+	if err := s.Repo.CreateCartItem(cartItem); err != nil {
+		return nil, err
+	}
+	
+	return s.Repo.FindCartItems(userID)
 }
 
 

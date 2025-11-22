@@ -15,6 +15,13 @@ type UserRepository interface {
 	FindUserByID(id uint) (domain.User, error)
 	UpdateUser(id uint, user domain.User) (domain.User, error)
 	CreateBankAccount(bank domain.BankAccount) error
+	
+	FindCartItems(userID uint) ([]*domain.CartItem, error)
+	FindCartItemByID(userID, productID uint) (domain.CartItem, error)
+	CreateCartItem(c domain.CartItem) error
+	UpdateCartItem(c domain.CartItem) (domain.CartItem, error)
+	DeleteCartItem(id uint) error
+	DeleteCartItems(userID uint) error
 }
 
 
@@ -90,4 +97,98 @@ func (ur *userRepository) UpdateUser(id uint, user domain.User) (domain.User, er
 
 func (ur *userRepository) CreateBankAccount(bank domain.BankAccount) error {
 	return ur.db.Create(&bank).Error
+}
+
+
+func (ur *userRepository) CreateCartItem(c domain.CartItem) error {
+	
+	if err := ur.db.Create(&c).Error; err != nil {
+		log.Println("db_err CreateCartItem: ", err)
+		return errors.New("error creating cart item")
+	}
+	
+	return nil
+}
+
+
+func (ur *userRepository) FindCartItems(userID uint) ([]*domain.CartItem, error) {
+	
+	cartItems := []*domain.CartItem{}
+	
+	tx := ur.db.Find(&cartItems, "user_id = ?", userID)
+	
+	if err := tx.Error; err != nil {
+		log.Println("db_err FindCartItems: ", err)
+		return nil, errors.New("error finding cart items")
+	}
+	
+	if len(cartItems) == 0 {
+		return nil, errors.New("user id not found, failed to find cart items")
+	}
+	
+	return cartItems, nil
+}
+
+
+func (ur *userRepository) FindCartItemByID(userID, productID uint) (domain.CartItem, error) {
+	
+	cartItem := domain.CartItem{}
+	
+	if err := ur.db.First(&cartItem, "user_id = ? AND product_id = ?", userID, productID).Error; err != nil {
+		log.Println("db_err FindCartItemByID: ", err)
+		return domain.CartItem{}, errors.New("cart item not found")
+	}
+	
+	return cartItem, nil
+}
+
+
+func (ur *userRepository) UpdateCartItem(c domain.CartItem) (domain.CartItem, error) {
+	
+	tx := ur.db.Updates(&c)
+	
+	if err := tx.Error; err != nil {
+		log.Println("db_err UpdateCartItem: ", err)
+		return domain.CartItem{}, errors.New("error updating cart item")
+	}
+	
+	if tx.RowsAffected == 0 {
+		return domain.CartItem{}, errors.New("cart item not found, failed to update")
+	}
+	
+	return c, nil
+}
+
+
+func (ur *userRepository) DeleteCartItem(id uint) error {
+	
+	tx := ur.db.Delete(&domain.CartItem{ID: id})
+	
+	if err := tx.Error; err != nil {
+		log.Println("db_err DeleteCartItem: ", err)
+		return errors.New("error deleting cart item")
+	}
+	
+	if tx.RowsAffected == 0 {
+		return errors.New("cart item not found, failed to delete")
+	}
+	
+	return nil
+}
+
+
+func (ur *userRepository) DeleteCartItems(userID uint) error {
+	
+	tx := ur.db.Delete(&domain.CartItem{}, "user_id = ?", userID)
+	
+	if err := tx.Error; err != nil {
+		log.Println("db_err DeleteCartItems: ", err)
+		return errors.New("error deleting cart items")
+	}
+	
+	if tx.RowsAffected == 0 {
+		return errors.New("user id not found, failed to delete cart items")
+	}
+	
+	return nil
 }
