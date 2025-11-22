@@ -29,6 +29,7 @@ func StartServer(cfg *config.AppConfig) {
 		&domain.BankAccount{},
 		&domain.Category{},
 		&domain.Product{},
+		&domain.Cart{},
 	)
 
 	if err != nil {
