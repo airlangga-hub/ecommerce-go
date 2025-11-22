@@ -179,9 +179,6 @@ func (h *UserHandler) AddToCart(ctx *fiber.Ctx) error {
 	if err != nil {
 		return rest.ErrorResponse(ctx, 500, err)
 	}
-	if cartItems == nil {
-		return rest.ErrorResponse(ctx, 500, errors.New("nil cart items"))
-	}
 	
 	return ctx.Status(200).JSON(fiber.Map{
 		"message": "add to cart success",
