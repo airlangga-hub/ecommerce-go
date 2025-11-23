@@ -213,8 +213,6 @@ func (s *UserService) CreateCart(input dto.CartRequest, userID uint) ([]*domain.
 		return nil, err
 	}
 	
-	cart, _ := s.Repo.FindCartItemByID(userID, product.ID)
-	
 	cartItem := domain.CartItem{
 		ProductID: input.ProductID,
 		Qty: input.Qty,
@@ -224,22 +222,9 @@ func (s *UserService) CreateCart(input dto.CartRequest, userID uint) ([]*domain.
 		UserID: userID,
 		SellerID: product.UserID,
 	}
-	
-	if cart.ID == 0 {
 		
-		if err := s.Repo.CreateCartItem(cartItem); err != nil {
-			return nil, err
-			
-		}
-	} else {
-		
-		cartItem.ID = cart.ID
-		
-		_, err := s.Repo.UpdateCartItem(cartItem)
-		if err != nil {
-			return nil, err
-		}
-		
+	if err := s.Repo.CreateCartItem(cartItem); err != nil {
+		return nil, err
 	}
 	
 	return s.Repo.FindCartItems(userID)

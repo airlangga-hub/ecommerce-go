@@ -6,6 +6,7 @@ import (
 
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 
@@ -102,7 +103,13 @@ func (ur *userRepository) CreateBankAccount(bank domain.BankAccount) error {
 
 func (ur *userRepository) CreateCartItem(c domain.CartItem) error {
 	
-	if err := ur.db.Create(&c).Error; err != nil {
+	if err := ur.db.Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "user_id"}, {Name: "product_id"}},
+		DoUpdates: clause.Assignments(map[string]any{
+			"qty": gorm.Expr("excluded.qty"),
+			"updated_at": gorm.Expr("now()"),
+		}),
+	}).Create(&c).Error; err != nil {
 		log.Println("db_err CreateCartItem: ", err)
 		return errors.New("error creating cart item")
 	}
