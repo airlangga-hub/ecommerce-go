@@ -145,7 +145,9 @@ func (ur *userRepository) FindCartItemByID(userID, productID uint) (domain.CartI
 
 func (ur *userRepository) UpdateCartItem(c domain.CartItem) (domain.CartItem, error) {
 	
-	tx := ur.db.Updates(&c)
+	updated := domain.CartItem{}
+	
+	tx := ur.db.Updates(c).Scan(&updated)
 	
 	if err := tx.Error; err != nil {
 		log.Println("db_err UpdateCartItem: ", err)
@@ -156,7 +158,7 @@ func (ur *userRepository) UpdateCartItem(c domain.CartItem) (domain.CartItem, er
 		return domain.CartItem{}, errors.New("cart item not found, failed to update")
 	}
 	
-	return c, nil
+	return updated, nil
 }
 
 
