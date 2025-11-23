@@ -187,8 +187,17 @@ func (h *UserHandler) AddToCart(ctx *fiber.Ctx) error {
 
 
 func (h *UserHandler) GetCart(ctx *fiber.Ctx) error {
+	
+	user := h.Svc.Auth.GetCurrentUser(ctx)
+	
+	cartItems, err := h.Svc.FindCart(user.ID)
+	if err != nil {
+		return rest.ErrorResponse(ctx, 404, err)
+	}
+	
 	return ctx.Status(200).JSON(fiber.Map{
 		"message": "get cart success",
+		"data": cartItems,
 	})
 }
 

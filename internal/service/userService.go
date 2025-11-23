@@ -201,8 +201,8 @@ func (s *UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, 
 }
 
 
-func (s *UserService) FindCart(id uint) ([]any, error) {
-	return nil, nil
+func (s *UserService) FindCart(userID uint) ([]*domain.CartItem, error) {
+	return s.Repo.FindCartItems(userID)
 }
 
 
