@@ -38,7 +38,7 @@ func NewCatalogRepository(db *gorm.DB) CatalogRepository {
 func (cr *catalogRepository) CreateCategory(c *domain.Category) error {
 
 	if err := cr.db.Create(c).Error; err != nil {
-		log.Print("db_err CreateCategory: ", err)
+		log.Print(" --> db_err CreateCategory: ", err)
 		return errors.New("error creating category")
 	}
 
@@ -53,7 +53,7 @@ func (cr *catalogRepository) FindCategories() ([]*domain.Category, error) {
 	tx := cr.db.Find(&categories)
 
 	if err := tx.Error; err != nil {
-		log.Print("db_err FindCategories: ", err)
+		log.Print(" --> db_err FindCategories: ", err)
 		return nil, errors.New("error finding categories")
 	}
 
@@ -70,7 +70,7 @@ func (cr *catalogRepository) FindCategoryByID(id uint) (*domain.Category, error)
 	category := &domain.Category{ID: id}
 
 	if err := cr.db.First(category).Error; err != nil {
-		log.Print("db_err FindCategoryByID: ", err)
+		log.Print(" --> db_err FindCategoryByID: ", err)
 		return nil, errors.New("category not found")
 	}
 
@@ -83,7 +83,7 @@ func (cr *catalogRepository) EditCategory(c *domain.Category) (*domain.Category,
 	tx := cr.db.Updates(c)
 
 	if err := tx.Error; err != nil {
-		log.Print("db_err EditCategory: ", err)
+		log.Print(" --> db_err EditCategory: ", err)
 		return nil, errors.New("failed to update category")
 	}
 
@@ -100,7 +100,7 @@ func (cr *catalogRepository) DeleteCategory(id uint) error {
 	tx := cr.db.Delete(&domain.Category{ID: id})
 
 	if err := tx.Error; err != nil {
-		log.Print("db_err DeleteCategory: ", err)
+		log.Print(" --> db_err DeleteCategory: ", err)
 		return errors.New("error deleting category")
 	}
 
@@ -115,7 +115,7 @@ func (cr *catalogRepository) DeleteCategory(id uint) error {
 func (cr *catalogRepository) CreateProduct(p domain.Product) error {
 
 	if err := cr.db.Create(&p).Error; err != nil {
-		log.Println("db_err CreateProduct: ", err.Error())
+		log.Println(" --> db_err CreateProduct: ", err.Error())
 		return errors.New("create product failed")
 	}
 
@@ -130,7 +130,7 @@ func (cr *catalogRepository) FindProducts() ([]*domain.Product, error) {
 	tx := cr.db.Find(&products)
 
 	if err := tx.Error; err != nil {
-		log.Print("db_err FindProducts: ", err)
+		log.Print(" --> db_err FindProducts: ", err)
 		return nil, errors.New("failed to find products")
 	}
 
@@ -147,7 +147,7 @@ func (cr *catalogRepository) FindProductByID(id uint) (domain.Product, error) {
 	product := domain.Product{ID: id}
 
 	if err := cr.db.First(&product).Error; err != nil {
-		log.Print("db_err FindProductByID: ", err)
+		log.Print(" --> db_err FindProductByID: ", err)
 		return domain.Product{}, errors.New("product not found")
 	}
 
@@ -162,7 +162,7 @@ func (cr *catalogRepository) FindSellerProducts(id uint) ([]*domain.Product, err
 	tx := cr.db.Where("user_id = ?", id).Find(&products)
 
 	if err := tx.Error; err != nil {
-		log.Print("db_err FindSellerProducts: ", err)
+		log.Print(" --> db_err FindSellerProducts: ", err)
 		return nil, errors.New("failed to find seller products")
 	}
 
@@ -181,7 +181,7 @@ func (cr *catalogRepository) EditProduct(p domain.Product) (domain.Product, erro
 	tx := cr.db.Updates(p).Scan(&updated)
 
 	if err := tx.Error; err != nil {
-		log.Print("db_err EditProduct: ", err)
+		log.Print(" --> db_err EditProduct: ", err)
 		return domain.Product{}, errors.New("error updating product")
 	}
 
@@ -198,7 +198,7 @@ func (cr *catalogRepository) DeleteProduct(p domain.Product) error {
 	tx := cr.db.Delete(&p)
 
 	if err := tx.Error; err != nil {
-		log.Print("db_err DeleteProduct: ", err)
+		log.Print(" --> db_err DeleteProduct: ", err)
 		return errors.New("error deleting product")
 	}
 

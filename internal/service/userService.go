@@ -28,7 +28,7 @@ func (s *UserService) SignUp(input dto.UserSignUp) (string, error) {
 	}
 
 	user, err := s.Repo.CreateUser(
-		&domain.User{
+		domain.User{
 			Email: input.Email,
 			Password: hashedPassword,
 			Phone: input.Phone,
@@ -141,18 +141,64 @@ func (s *UserService) VerifyCode(id uint, code int) error {
 }
 
 
-func (s *UserService) CreateProfile(id uint, input any) error {
+func (s *UserService) CreateProfile(id uint, input dto.ProfileInput) error {
+	
+	user := domain.User{
+		ID: id,
+		FirstName: input.FirstName,
+		LastName: input.LastName,
+	}
+	
+	address := domain.Address{
+		UserID: id,
+		AddressLine1: input.Address.AddressLine1,
+		AddressLine2: input.Address.AddressLine2,
+		City: input.Address.City,
+		Country: input.Address.Country,
+	}
+	
+	if err := s.Repo.CreateProfile(user, address); err != nil {
+		return err
+	} 
+	
 	return nil
 }
 
 
-func (s *UserService) GetProfile(id uint) (*domain.User, error) {
-	return nil, nil
+func (s *UserService) GetProfile(id uint) (domain.User, domain.Address, error) {
+	
+	user, address, err := s.Repo.GetProfile(id)
+	
+	if err != nil {
+		return domain.User{}, domain.Address{}, err
+	}
+	
+	return user, address, nil
 }
 
 
-func (s *UserService) UpdateProfile(id uint, input any) error {
-	return nil
+func (s *UserService) UpdateProfile(id uint, input dto.ProfileInput) (domain.User, domain.Address, error) {
+	user := domain.User{
+		ID: id,
+		FirstName: input.FirstName,
+		LastName: input.LastName,
+	}
+	
+	address := domain.Address{
+		UserID: id,
+		AddressLine1: input.Address.AddressLine1,
+		AddressLine2: input.Address.AddressLine2,
+		City: input.Address.City,
+		Country: input.Address.Country,
+	}
+	
+	user, address, err := s.Repo.UpdateProfile(user, address)
+	
+	if err != nil {
+		return domain.User{}, domain.Address{}, err
+	}
+	
+	return user, address, nil
 }
 
 

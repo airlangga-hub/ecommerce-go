@@ -11,11 +11,15 @@ import (
 
 
 type UserRepository interface {
-	CreateUser(user *domain.User) (domain.User, error)
+	CreateUser(user 	domain.User) (domain.User, error)
 	FindUser(email string) (domain.User, error)
 	FindUserByID(id uint) (domain.User, error)
 	UpdateUser(id uint, user domain.User) (domain.User, error)
 	CreateBankAccount(bank domain.BankAccount) error
+	
+	CreateProfile(user domain.User, address domain.Address) error
+	GetProfile(id uint) (domain.User, domain.Address, error)
+	UpdateProfile(user domain.User, address domain.Address) (domain.User, domain.Address, error) 
 	
 	FindCartItems(userID uint) ([]*domain.CartItem, error)
 	FindCartItemByID(userID, productID uint) (domain.CartItem, error)
@@ -36,15 +40,14 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 }
 
 
-func (ur *userRepository) CreateUser(user *domain.User) (domain.User, error) {
-	err := ur.db.Create(user).Error
+func (ur *userRepository) CreateUser(user domain.User) (domain.User, error) {
 
-	if err != nil {
-		log.Println("error creating user: ", err)
+	if err := ur.db.Create(&user).Error; err != nil {
+		log.Println(" --> db_err CreateUser: ", err)
 		return domain.User{}, errors.New("failed to create user")
 	}
 
-	return *user, nil
+	return user, nil
 }
 
 
@@ -54,7 +57,7 @@ func (ur *userRepository) FindUser(email string) (domain.User, error) {
 	err := ur.db.First(&user, "email=?", email).Error
 
 	if err != nil {
-		log.Println("find user error: ", err)
+		log.Println(" --> db_err FindUser: ", err)
 		return domain.User{}, errors.New("user does not exist")
 	}
 
@@ -68,7 +71,7 @@ func (ur *userRepository) FindUserByID(id uint) (domain.User, error) {
 	err := ur.db.First(&user, id).Error
 
 	if err != nil {
-		log.Println("find user error: ", err)
+		log.Println(" --> db_err FindUserByID: ", err)
 		return domain.User{}, errors.New("user does not exist")
 	}
 	return user, nil
@@ -84,7 +87,7 @@ func (ur *userRepository) UpdateUser(id uint, user domain.User) (domain.User, er
 	tx := ur.db.Updates(user).Scan(&updated)
 
 	if err := tx.Error; err != nil {
-		log.Println("db_err UpdateUser: ", err)
+		log.Println(" --> db_err UpdateUser: ", err)
 		return domain.User{}, errors.New("failed to update user")
 	}
 
@@ -97,7 +100,82 @@ func (ur *userRepository) UpdateUser(id uint, user domain.User) (domain.User, er
 
 
 func (ur *userRepository) CreateBankAccount(bank domain.BankAccount) error {
-	return ur.db.Create(&bank).Error
+	
+	if err := ur.db.Create(&bank).Error; err != nil {
+		log.Println(" --> db_err CreateBankAccount: ", err)
+		return errors.New("failed to create bank account")
+	}
+	
+	return nil
+}
+
+
+func (ur *userRepository) CreateProfile(user domain.User, address domain.Address) error {
+	
+	if err := ur.db.Create(&address).Error; err != nil {
+		log.Println(" --> db_err CreateProfile (create address): ", err)
+		return errors.New("error creating profile")
+	}
+	
+	tx := ur.db.Updates(user)
+	
+	if err := tx.Error; err != nil {
+		log.Println(" --> db_err CreateProfile (update user): ", err)
+		return errors.New("error creating profile")		
+	}
+	
+	if tx.RowsAffected == 0 {
+		return errors.New("user not found, failed to create profile")
+	}
+	
+	return nil
+}
+
+
+func (ur *userRepository) GetProfile(id uint) (domain.User, domain.Address, error) {
+	
+	user := domain.User{ID: id}
+	address := domain.Address{}
+	
+	if err := ur.db.First(&user); err != nil {
+		log.Println(" --> db_err GetProfile: ", err)
+		return domain.User{}, domain.Address{}, errors.New("error getting profile")
+	}
+	
+	if err := ur.db.First(&address, "user_id=?", id); err != nil {
+		log.Println(" --> db_err GetProfile: ", err)
+		return domain.User{}, domain.Address{}, errors.New("error getting profile")
+	}
+	
+	return user, address, nil
+}
+
+
+func (ur *userRepository) UpdateProfile(user domain.User, address domain.Address) (domain.User, domain.Address, error) {
+	
+	tx := ur.db.Updates(&user)
+	
+	if err := tx.Error; err != nil {
+		log.Println(" --> db_err UpdateProfile: ", err)
+		return domain.User{}, domain.Address{}, errors.New("error updating profile")
+	}
+	
+	if tx.RowsAffected == 0 {
+		return domain.User{}, domain.Address{}, errors.New("user not found, failed to update profile")
+	}
+
+	tx = ur.db.Where("user_id=?", user.ID).Updates(&address)
+	
+	if err := tx.Error; err != nil {
+		log.Println(" --> db_err UpdateProfile: ", err)
+		return domain.User{}, domain.Address{}, errors.New("error updating profile")
+	}
+	
+	if tx.RowsAffected == 0 {
+		return domain.User{}, domain.Address{}, errors.New("user not found, failed to update profile")
+	}
+	
+	return user, address, nil
 }
 
 
@@ -110,7 +188,7 @@ func (ur *userRepository) CreateCartItem(c domain.CartItem) error {
 			"updated_at": gorm.Expr("now()"),
 		}),
 	}).Create(&c).Error; err != nil {
-		log.Println("db_err CreateCartItem: ", err)
+		log.Println(" --> db_err CreateCartItem: ", err)
 		return errors.New("error creating cart item")
 	}
 	
@@ -125,7 +203,7 @@ func (ur *userRepository) FindCartItems(userID uint) ([]*domain.CartItem, error)
 	tx := ur.db.Find(&cartItems, "user_id = ?", userID)
 	
 	if err := tx.Error; err != nil {
-		log.Println("db_err FindCartItems: ", err)
+		log.Println(" --> db_err FindCartItems: ", err)
 		return nil, errors.New("error finding cart items")
 	}
 	
@@ -142,7 +220,7 @@ func (ur *userRepository) FindCartItemByID(userID, productID uint) (domain.CartI
 	cartItem := domain.CartItem{}
 	
 	if err := ur.db.First(&cartItem, "user_id = ? AND product_id = ?", userID, productID).Error; err != nil {
-		log.Println("db_err FindCartItemByID: ", err)
+		log.Println(" --> db_err FindCartItemByID: ", err)
 		return domain.CartItem{}, errors.New("cart item not found")
 	}
 	
@@ -157,7 +235,7 @@ func (ur *userRepository) UpdateCartItem(c domain.CartItem) (domain.CartItem, er
 	tx := ur.db.Updates(c).Scan(&updated)
 	
 	if err := tx.Error; err != nil {
-		log.Println("db_err UpdateCartItem: ", err)
+		log.Println(" --> db_err UpdateCartItem: ", err)
 		return domain.CartItem{}, errors.New("error updating cart item")
 	}
 	
@@ -174,7 +252,7 @@ func (ur *userRepository) DeleteCartItem(id uint) error {
 	tx := ur.db.Delete(&domain.CartItem{ID: id})
 	
 	if err := tx.Error; err != nil {
-		log.Println("db_err DeleteCartItem: ", err)
+		log.Println(" --> db_err DeleteCartItem: ", err)
 		return errors.New("error deleting cart item")
 	}
 	
@@ -191,7 +269,7 @@ func (ur *userRepository) DeleteCartItems(userID uint) error {
 	tx := ur.db.Delete(&domain.CartItem{}, "user_id = ?", userID)
 	
 	if err := tx.Error; err != nil {
-		log.Println("db_err DeleteCartItems: ", err)
+		log.Println(" --> db_err DeleteCartItems: ", err)
 		return errors.New("error deleting cart items")
 	}
 	
