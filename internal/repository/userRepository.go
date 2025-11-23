@@ -107,6 +107,7 @@ func (ur *userRepository) CreateCartItem(c domain.CartItem) error {
 		Columns: []clause.Column{{Name: "user_id"}, {Name: "product_id"}},
 		DoUpdates: clause.Assignments(map[string]any{
 			"qty": gorm.Expr("excluded.qty"),
+			"updated_at": gorm.Expr("now()"),
 		}),
 	}).Create(&c).Error; err != nil {
 		log.Println("db_err CreateCartItem: ", err)
