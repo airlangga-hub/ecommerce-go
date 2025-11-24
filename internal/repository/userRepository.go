@@ -19,7 +19,7 @@ type UserRepository interface {
 	
 	CreateProfile(user domain.User, address domain.Address) error
 	GetProfile(id uint) (domain.User, []*domain.Address, error)
-	UpdateProfile(user domain.User, address domain.Address, addressID uint) (domain.User, domain.Address, error) 
+	UpdateProfile(user domain.User, address *domain.Address) (domain.User, *domain.Address, error) 
 	
 	FindCartItems(userID uint) ([]*domain.CartItem, error)
 	FindCartItemByID(userID, productID uint) (domain.CartItem, error)
@@ -151,30 +151,33 @@ func (ur *userRepository) GetProfile(id uint) (domain.User, []*domain.Address, e
 }
 
 
-func (ur *userRepository) UpdateProfile(user domain.User, address domain.Address, addressID uint) (domain.User, domain.Address, error) {
+func (ur *userRepository) UpdateProfile(user domain.User, address *domain.Address) (domain.User, *domain.Address, error) {
 	
 	tx := ur.db.Updates(&user)
 	
 	if err := tx.Error; err != nil {
-		log.Println(" --> db_err UpdateProfile: ", err)
-		return domain.User{}, domain.Address{}, errors.New("error updating profile")
+		log.Println(" --> db_err UpdateProfile (update user): ", err)
+		return domain.User{}, nil, errors.New("error updating profile")
 	}
 	
 	if tx.RowsAffected == 0 {
-		return domain.User{}, domain.Address{}, errors.New("user not found, failed to update profile")
+		return domain.User{}, nil, errors.New("user not found, failed to update profile")
 	}
 
-	tx = ur.db.Where("user_id=? and id=?", user.ID, addressID).Updates(&address)
-	
-	if err := tx.Error; err != nil {
-		log.Println(" --> db_err UpdateProfile: ", err)
-		return domain.User{}, domain.Address{}, errors.New("error updating profile")
+	if address != nil {
+		
+		tx = ur.db.Updates(&address)
+		
+		if err := tx.Error; err != nil {
+			log.Println(" --> db_err UpdateProfile (update address): ", err)
+			return domain.User{}, nil, errors.New("error updating profile")
+		}
+		
+		if tx.RowsAffected == 0 {
+			return domain.User{}, nil, errors.New("user not found, failed to update profile")
+		}
 	}
-	
-	if tx.RowsAffected == 0 {
-		return domain.User{}, domain.Address{}, errors.New("user not found, failed to update profile")
-	}
-	
+		
 	return user, address, nil
 }
 

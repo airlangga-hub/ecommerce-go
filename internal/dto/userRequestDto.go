@@ -29,6 +29,7 @@ type SellerInput struct {
 
 
 type AddressInput struct {
+	ID				uint		`json:"id"`
 	AddressLine1	string		`json:"address_line1"`
 	AddressLine2	string		`json:"address_line2"`
 	City			string		`json:"city"`
@@ -39,5 +40,5 @@ type AddressInput struct {
 type ProfileInput struct {
 	FirstName	string			`json:"first_name"`
 	LastName	string			`json:"last_name"`
-	Address		AddressInput	`json:"address"`
+	Address		*AddressInput	`json:"address"`
 }
