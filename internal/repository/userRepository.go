@@ -18,8 +18,8 @@ type UserRepository interface {
 	CreateBankAccount(bank domain.BankAccount) error
 	
 	CreateProfile(user domain.User, address domain.Address) error
-	GetProfile(id uint) (domain.User, domain.Address, error)
-	UpdateProfile(user domain.User, address domain.Address) (domain.User, domain.Address, error) 
+	GetProfile(id uint) (domain.User, []*domain.Address, error)
+	UpdateProfile(user domain.User, address domain.Address, addressID uint) (domain.User, domain.Address, error) 
 	
 	FindCartItems(userID uint) ([]*domain.CartItem, error)
 	FindCartItemByID(userID, productID uint) (domain.CartItem, error)
@@ -132,26 +132,26 @@ func (ur *userRepository) CreateProfile(user domain.User, address domain.Address
 }
 
 
-func (ur *userRepository) GetProfile(id uint) (domain.User, domain.Address, error) {
+func (ur *userRepository) GetProfile(id uint) (domain.User, []*domain.Address, error) {
 	
 	user := domain.User{ID: id}
-	address := domain.Address{}
+	addresses := []*domain.Address{}
 	
-	if err := ur.db.First(&user); err != nil {
-		log.Println(" --> db_err GetProfile: ", err)
-		return domain.User{}, domain.Address{}, errors.New("error getting profile")
+	if err := ur.db.Select("first_name", "last_name", "email", "phone", "user_type").First(&user).Error; err != nil {
+		log.Println(" --> db_err GetProfile (find user): ", err)
+		return domain.User{}, nil, errors.New("error getting profile")
 	}
 	
-	if err := ur.db.First(&address, "user_id=?", id); err != nil {
-		log.Println(" --> db_err GetProfile: ", err)
-		return domain.User{}, domain.Address{}, errors.New("error getting profile")
+	if err := ur.db.Find(&addresses, "user_id=?", id).Error; err != nil {
+		log.Println(" --> db_err GetProfile (find address): ", err)
+		return domain.User{}, nil, errors.New("error getting profile")
 	}
 	
-	return user, address, nil
+	return user, addresses, nil
 }
 
 
-func (ur *userRepository) UpdateProfile(user domain.User, address domain.Address) (domain.User, domain.Address, error) {
+func (ur *userRepository) UpdateProfile(user domain.User, address domain.Address, addressID uint) (domain.User, domain.Address, error) {
 	
 	tx := ur.db.Updates(&user)
 	
@@ -164,7 +164,7 @@ func (ur *userRepository) UpdateProfile(user domain.User, address domain.Address
 		return domain.User{}, domain.Address{}, errors.New("user not found, failed to update profile")
 	}
 
-	tx = ur.db.Where("user_id=?", user.ID).Updates(&address)
+	tx = ur.db.Where("user_id=? and id=?", user.ID, addressID).Updates(&address)
 	
 	if err := tx.Error; err != nil {
 		log.Println(" --> db_err UpdateProfile: ", err)

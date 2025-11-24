@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"strconv"
 
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest"
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
@@ -40,7 +41,7 @@ func SetupUserRoutes(rh *rest.HttpHandler) {
 
 	privateRoutes.Post("/profile", handler.CreateProfile)
 	privateRoutes.Get("/profile", handler.GetProfile)
-	privateRoutes.Patch("/profile", handler.UpdateProfile)
+	privateRoutes.Patch("/profile/:id", handler.UpdateProfile)
 
 	privateRoutes.Post("/cart", handler.AddToCart)
 	privateRoutes.Get("/cart", handler.GetCart)
@@ -186,6 +187,8 @@ func (h *UserHandler) GetProfile(ctx *fiber.Ctx) error {
 
 func (h *UserHandler) UpdateProfile(ctx *fiber.Ctx) error {
 	
+	addressID, _ := strconv.Atoi(ctx.Params("id"))
+	
 	user := h.Svc.Auth.GetCurrentUser(ctx)
 	
 	profileInput := dto.ProfileInput{}
@@ -194,7 +197,7 @@ func (h *UserHandler) UpdateProfile(ctx *fiber.Ctx) error {
 		return rest.BadRequest(ctx, "invalid request body for update profile")
 	}
 	
-	user, address, err := h.Svc.UpdateProfile(user.ID, profileInput)
+	user, address, err := h.Svc.UpdateProfile(user.ID, uint(addressID), profileInput)
 	
 	if err != nil {
 		return rest.ErrorResponse(ctx, 500, err)
