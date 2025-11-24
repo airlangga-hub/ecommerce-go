@@ -186,7 +186,7 @@ func (s *UserService) UpdateProfile(id uint, input dto.ProfileInput) (domain.Use
 	
 	var address *domain.Address
 	
-	if input.Address != nil && input.Address.ID > 0 {
+	if input.Address.ID > 0 {
 		
 		address = &domain.Address{
 			ID: input.Address.ID,
