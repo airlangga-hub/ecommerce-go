@@ -40,5 +40,5 @@ type AddressInput struct {
 type ProfileInput struct {
 	FirstName	string			`json:"first_name"`
 	LastName	string			`json:"last_name"`
-	Address		*AddressInput	`json:"address"`
+	Address		AddressInput	`json:"address"`
 }
