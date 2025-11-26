@@ -10,7 +10,6 @@ import (
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"github.com/airlangga-hub/ecommerce-go/internal/helper"
 	"github.com/airlangga-hub/ecommerce-go/internal/repository"
-	"github.com/charmbracelet/bubbles/help"
 )
 
 
@@ -96,7 +95,7 @@ func (s *UserService) CreateVerificationCode(user domain.User) (int, error) {
 
 	return code, nil
 
-	// send SMS
+	// send SMS (some countries are deemed risky by Twilio)
 	// if user.Phone == "" {
 	// 	return 0, errors.New("user does not have a phone number")
 	// }
@@ -293,6 +292,8 @@ func (s *UserService) CreateOrder(user domain.User) (int, error) {
 	}
 	
 	// find success payment
+	txnID := "HDSAU21"
+	paymentID := "IOEWQ231"
 	orderRef, err := helper.RandomNumbers(8)
 	if err != nil {
 		return 0, fmt.Errorf("error generating order ref: %v", err)
@@ -324,21 +325,26 @@ func (s *UserService) CreateOrder(user domain.User) (int, error) {
 		PaymentID: paymentID,
 	}
 	
-	err := s.Repo.CreateOrder(order)
+	if err := s.Repo.CreateOrder(order); err != nil {
+		return 0, err
+	}
+	
+	// delete cart items
+	if err := s.Repo.DeleteCartItems(user.ID); err != nil {
+		return 0, err
+	}
 	
 	// send email to user with order details
 	
-	// remove cart items from cart
-	
-	return 0, nil
+	return orderRef, nil
 }
 
 
-func (s *UserService) GetOrders(user domain.User) ([]any, error) {
-	return nil, nil
+func (s *UserService) GetOrders(user domain.User) ([]*domain.Order, error) {
+	return s.Repo.FindOrders(user.ID)
 }
 
 
-func (s *UserService) GetOrderByID(id, userID uint) ([]any, error) {
-	return nil, nil
+func (s *UserService) GetOrderByID(id uint) (domain.Order, error) {
+	return s.Repo.FindOrderByID(id)
 }

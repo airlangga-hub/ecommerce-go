@@ -271,8 +271,8 @@ func (ur *userRepository) DeleteCartItem(id uint) error {
 }
 
 
-func (ur *userRepository) DeleteCartItems(userID uint) error {
-	
+ func (ur *userRepository) DeleteCartItems(userID uint) error {
+ 
 	tx := ur.db.Delete(&domain.CartItem{}, "user_id = ?", userID)
 	
 	if err := tx.Error; err != nil {
