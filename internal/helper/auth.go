@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
+	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -70,11 +71,11 @@ func (a *Auth) VerifyPassword(password, hashedPassword string) error {
 }
 
 
-func (a *Auth) VerifyToken(authHeader string) (domain.User, error) {
+func (a *Auth) VerifyToken(authHeader string) (dto.UserLocals, error) {
 	tokenSlice:= strings.Fields(authHeader)
 
 	if len(tokenSlice) < 2 || tokenSlice[0] != "Bearer" {
-		return domain.User{}, errors.New("malformed auth header")
+		return dto.UserLocals{}, errors.New("malformed auth header")
 	}
 
 	token, err := jwt.Parse(
@@ -88,15 +89,16 @@ func (a *Auth) VerifyToken(authHeader string) (domain.User, error) {
 	)
 
 	if err != nil {
-		return domain.User{}, fmt.Errorf("error parsing token: %v", err)
+		return dto.UserLocals{}, fmt.Errorf("error parsing token: %v", err)
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		
 		if exp, ok := claims["exp"].(float64); ok && exp < float64(time.Now().Unix()) {
-			return domain.User{}, errors.New("token expired")
+			return dto.UserLocals{}, errors.New("token expired")
 		}
 
-		user := domain.User{
+		user := dto.UserLocals{
 			ID: uint(claims["user_id"].(float64)),
 			Email: claims["email"].(string),
 			UserType: claims["role"].(string),
@@ -104,7 +106,7 @@ func (a *Auth) VerifyToken(authHeader string) (domain.User, error) {
 		return user, nil
 	}
 
-	return domain.User{}, errors.New("invalid token")
+	return dto.UserLocals{}, errors.New("invalid token")
 }
 
 
