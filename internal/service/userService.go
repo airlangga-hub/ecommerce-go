@@ -70,9 +70,9 @@ func (s *UserService) isUserVerified(id uint) (domain.User, bool) {
 }
 
 
-func (s *UserService) CreateVerificationCode(user domain.User) (int, error) {
+func (s *UserService) CreateVerificationCode(userID uint) (int, error) {
 	// if user already verified
-	if _, verified := s.isUserVerified(user.ID); verified {
+	if _, verified := s.isUserVerified(userID); verified {
 		return 0, errors.New("user already verified")
 	}
 
@@ -88,7 +88,7 @@ func (s *UserService) CreateVerificationCode(user domain.User) (int, error) {
 		Code: code,
 	}
 
-	_, err = s.Repo.UpdateUser(user.ID, u)
+	_, err = s.Repo.UpdateUser(userID, u)
 	if err != nil {
 		return 0, errors.New("failed to update user verification code")
 	}
@@ -283,10 +283,10 @@ func (s *UserService) CreateCart(input dto.CartRequest, userID uint) ([]*domain.
 }
 
 
-func (s *UserService) CreateOrder(user domain.User) (int, error) {
+func (s *UserService) CreateOrder(userID uint) (int, error) {
 	
 	// find cart items
-	cartItems, err := s.Repo.FindCartItems(user.ID)
+	cartItems, err := s.Repo.FindCartItems(userID)
 	if err != nil {
 		return 0, err
 	}
@@ -317,7 +317,7 @@ func (s *UserService) CreateOrder(user domain.User) (int, error) {
 	}
 	
 	order := domain.Order{
-		UserID: user.ID,
+		UserID: userID,
 		Amount: amount,
 		OrderItems: orderItems,
 		TransactionID: txnID,
@@ -330,7 +330,7 @@ func (s *UserService) CreateOrder(user domain.User) (int, error) {
 	}
 	
 	// delete cart items
-	if err := s.Repo.DeleteCartItems(user.ID); err != nil {
+	if err := s.Repo.DeleteCartItems(userID); err != nil {
 		return 0, err
 	}
 	
@@ -340,8 +340,8 @@ func (s *UserService) CreateOrder(user domain.User) (int, error) {
 }
 
 
-func (s *UserService) GetOrders(user domain.User) ([]*domain.Order, error) {
-	return s.Repo.FindOrders(user.ID)
+func (s *UserService) GetOrders(userID uint) ([]*domain.Order, error) {
+	return s.Repo.FindOrders(userID)
 }
 
 
