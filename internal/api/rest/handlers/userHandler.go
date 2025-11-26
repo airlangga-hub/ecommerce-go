@@ -132,7 +132,7 @@ func (h *UserHandler) Verify(ctx *fiber.Ctx) error {
 func (h *UserHandler) GetVerificationCode(ctx *fiber.Ctx) error {
 	user := h.Svc.Auth.GetCurrentUser(ctx)
 
-	code, err := h.Svc.CreateVerificationCode(user)
+	code, err := h.Svc.CreateVerificationCode(user.ID)
 
 	if err != nil {
 		return ctx.Status(500).JSON(fiber.Map{
@@ -252,7 +252,7 @@ func (h *UserHandler) CreateOrder(ctx *fiber.Ctx) error {
 	
 	user := h.Svc.Auth.GetCurrentUser(ctx)
 	
-	orderRef, err := h.Svc.CreateOrder(user)
+	orderRef, err := h.Svc.CreateOrder(user.ID)
 	
 	if err != nil {
 		return rest.ErrorResponse(ctx, 500, err)
