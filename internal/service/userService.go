@@ -345,6 +345,6 @@ func (s *UserService) GetOrders(userID uint) ([]*domain.Order, error) {
 }
 
 
-func (s *UserService) GetOrderByID(id uint) (domain.Order, error) {
-	return s.Repo.FindOrderByID(id)
+func (s *UserService) GetOrderByID(id, userID uint) (domain.Order, error) {
+	return s.Repo.FindOrderByID(id, userID)
 }

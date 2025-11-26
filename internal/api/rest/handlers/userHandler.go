@@ -285,9 +285,11 @@ func (h *UserHandler) GetOrders(ctx *fiber.Ctx) error {
 
 func (h *UserHandler) GetOrderByID(ctx *fiber.Ctx) error {
 	
+	user := h.Svc.Auth.GetCurrentUser(ctx)
+	
 	id, _ := strconv.Atoi(ctx.Params("id"))
 	
-	order, err := h.Svc.GetOrderByID(uint(id))
+	order, err := h.Svc.GetOrderByID(uint(id), user.ID)
 	
 	if err != nil {
 		return rest.ErrorResponse(ctx, 404, err)

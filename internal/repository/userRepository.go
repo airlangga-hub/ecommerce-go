@@ -30,7 +30,7 @@ type UserRepository interface {
 	
 	CreateOrder(order domain.Order) error
 	FindOrders(userID uint) ([]*domain.Order, error)
-	FindOrderByID(id uint) (domain.Order, error)
+	FindOrderByID(id, userID uint) (domain.Order, error)
 }
 
 
@@ -318,11 +318,11 @@ func (ur *userRepository) FindOrders(userID uint) ([]*domain.Order, error){
 }
 
 
-func (ur *userRepository) FindOrderByID(id uint) (domain.Order, error) {
+func (ur *userRepository) FindOrderByID(id, userID uint) (domain.Order, error) {
 	
 	order := domain.Order{ID: id}
 	
-	if err := ur.db.Preload("OrderItems").First(&order); err != nil {
+	if err := ur.db.Preload("OrderItems").Where("user_id=?", userID).First(&order); err != nil {
 		log.Println("--> db_err FindOrderByID: ", err)
 		return domain.Order{}, errors.New("failed to find order by id")
 	}
