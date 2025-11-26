@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"strconv"
 
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest"
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
@@ -266,15 +267,35 @@ func (h *UserHandler) CreateOrder(ctx *fiber.Ctx) error {
 
 
 func (h *UserHandler) GetOrders(ctx *fiber.Ctx) error {
+	
+	user := h.Svc.Auth.GetCurrentUser(ctx)
+	
+	orders, err := h.Svc.GetOrders(user.ID)
+	
+	if err != nil {
+		return rest.ErrorResponse(ctx, 404, err)
+	}
+	
 	return ctx.Status(200).JSON(fiber.Map{
 		"message": "get orders success",
+		"orders": orders,
 	})
 }
 
 
 func (h *UserHandler) GetOrderByID(ctx *fiber.Ctx) error {
+	
+	id, _ := strconv.Atoi(ctx.Params("id"))
+	
+	order, err := h.Svc.GetOrderByID(uint(id))
+	
+	if err != nil {
+		return rest.ErrorResponse(ctx, 404, err)
+	}
+	
 	return ctx.Status(200).JSON(fiber.Map{
 		"message": "get order by id success",
+		"order": order,
 	})
 }
 
