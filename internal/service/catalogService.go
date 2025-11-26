@@ -21,7 +21,7 @@ func (s *CatalogService) CreateCategory(input dto.CreateCategoryRequest) error {
 
 	category := domain.Category{
 		Name: input.Name,
-		ParentID: input.ParentID,
+		ParentID: &input.ParentID,
 		ImageURL: input.ImageURL,
 		DisplayOrder: input.DisplayOrder,
 	}
@@ -60,7 +60,7 @@ func (s *CatalogService) EditCategory(id uint, input dto.CreateCategoryRequest) 
 
 	category := &domain.Category{
 		Name: input.Name,
-		ParentID: input.ParentID,
+		ParentID: &input.ParentID,
 		ImageURL: input.ImageURL,
 		DisplayOrder: input.DisplayOrder,
 	}

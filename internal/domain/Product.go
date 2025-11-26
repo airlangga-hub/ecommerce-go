@@ -10,7 +10,9 @@ type Product struct {
 	Stock       uint      	`json:"stock"`
 	ImageURL    string    	`json:"image_url"`
 	UserID      uint      	`json:"user_id"`
+	User		User		
 	CategoryID  uint      	`json:"category_id"`
+	Category	Category
 	CreatedAt   time.Time 	`json:"created_at" gorm:"default:current_timestamp"`
 	UpdatedAt   time.Time 	`json:"updated_at" gorm:"default:current_timestamp"`
 }
