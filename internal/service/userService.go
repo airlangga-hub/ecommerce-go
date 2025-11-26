@@ -10,6 +10,7 @@ import (
 	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"github.com/airlangga-hub/ecommerce-go/internal/helper"
 	"github.com/airlangga-hub/ecommerce-go/internal/repository"
+	"github.com/charmbracelet/bubbles/help"
 )
 
 
@@ -292,8 +293,38 @@ func (s *UserService) CreateOrder(user domain.User) (int, error) {
 	}
 	
 	// find success payment
+	orderRef, err := helper.RandomNumbers(8)
+	if err != nil {
+		return 0, fmt.Errorf("error generating order ref: %v", err)
+	}
 	
 	// create order with generated order ref number
+	var amount float64
+	var orderItems []*domain.OrderItem
+	
+	for _, item := range cartItems {
+		amount += item.Price * float64(item.Qty)
+		
+		orderItems = append(orderItems, &domain.OrderItem{
+			ProductID: item.ProductID,
+			SellerID: item.SellerID,
+			Name: item.Name,
+			ImageURL: item.ImageURL,
+			Price: item.Price,
+			Qty: item.Qty,
+		})
+	}
+	
+	order := domain.Order{
+		UserID: user.ID,
+		Amount: amount,
+		OrderItems: orderItems,
+		TransactionID: txnID,
+		OrderRefNumber: uint(orderRef),
+		PaymentID: paymentID,
+	}
+	
+	err := s.Repo.CreateOrder(order)
 	
 	// send email to user with order details
 	

@@ -27,6 +27,10 @@ type UserRepository interface {
 	UpdateCartItem(c domain.CartItem) (domain.CartItem, error)
 	DeleteCartItem(id uint) error
 	DeleteCartItems(userID uint) error
+	
+	CreateOrder(order domain.Order) error
+	FindOrders(userID uint) ([]*domain.Order, error)
+	FindOrderByID(id uint) (domain.Order, error)
 }
 
 
@@ -281,4 +285,47 @@ func (ur *userRepository) DeleteCartItems(userID uint) error {
 	}
 	
 	return nil
+}
+
+
+func (ur *userRepository) CreateOrder(order domain.Order) error {
+	
+	if err := ur.db.Create(&order).Error; err != nil {
+		log.Println("--> db_err CreateOrder: ", err)
+		return errors.New("failed to create order")
+	}
+	
+	return nil
+}
+
+
+func (ur *userRepository) FindOrders(userID uint) ([]*domain.Order, error){
+	
+	orders := []*domain.Order{}
+	
+	tx := ur.db.Where("user_id=?", userID).Find(&orders)
+	
+	if err := tx.Error; err != nil {
+		log.Println("--> db_err FindOrders: ", err)
+		return nil, errors.New("failed to find orders")
+	}
+	
+	if len(orders) == 0 {
+		return nil, errors.New("user has no orders")
+	}
+	
+	return orders, nil
+}
+
+
+func (ur *userRepository) FindOrderByID(id uint) (domain.Order, error) {
+	
+	order := domain.Order{ID: id}
+	
+	if err := ur.db.Preload("OrderItems").First(&order); err != nil {
+		log.Println("--> db_err FindOrderByID: ", err)
+		return domain.Order{}, errors.New("failed to find order by id")
+	}
+	
+	return order, nil
 }
