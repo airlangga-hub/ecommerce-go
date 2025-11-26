@@ -284,6 +284,21 @@ func (s *UserService) CreateCart(input dto.CartRequest, userID uint) ([]*domain.
 
 
 func (s *UserService) CreateOrder(user domain.User) (int, error) {
+	
+	// find cart items
+	cartItems, err := s.Repo.FindCartItems(user.ID)
+	if err != nil {
+		return 0, err
+	}
+	
+	// find success payment
+	
+	// create order with generated order ref number
+	
+	// send email to user with order details
+	
+	// remove cart items from cart
+	
 	return 0, nil
 }
 

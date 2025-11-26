@@ -45,6 +45,7 @@ func SetupUserRoutes(rh *rest.HttpHandler) {
 	privateRoutes.Post("/cart", handler.AddToCart)
 	privateRoutes.Get("/cart", handler.GetCart)
 
+	privateRoutes.Post("/order", handler.CreateOrder)
 	privateRoutes.Get("/order", handler.GetOrders)
 	privateRoutes.Get("/order/:id", handler.GetOrderByID)
 
@@ -243,6 +244,23 @@ func (h *UserHandler) GetCart(ctx *fiber.Ctx) error {
 	return ctx.Status(200).JSON(fiber.Map{
 		"message": "get cart success",
 		"data": cartItems,
+	})
+}
+
+
+func (h *UserHandler) CreateOrder(ctx *fiber.Ctx) error {
+	
+	user := h.Svc.Auth.GetCurrentUser(ctx)
+	
+	orderRef, err := h.Svc.CreateOrder(user)
+	
+	if err != nil {
+		return rest.ErrorResponse(ctx, 500, err)
+	}
+	
+	return ctx.Status(200).JSON(fiber.Map{
+		"message": "create order success",
+		"order": orderRef,
 	})
 }
 
