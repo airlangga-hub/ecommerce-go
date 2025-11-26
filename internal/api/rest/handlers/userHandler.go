@@ -172,7 +172,7 @@ func (h *UserHandler) CreateProfile(ctx *fiber.Ctx) error {
 func (h *UserHandler) GetProfile(ctx *fiber.Ctx) error {
 	user := h.Svc.Auth.GetCurrentUser(ctx)
 	
-	user, address, err := h.Svc.GetProfile(user.ID)
+	u, address, err := h.Svc.GetProfile(user.ID)
 	
 	if err != nil {
 		return rest.ErrorResponse(ctx, 500, err)
@@ -180,7 +180,7 @@ func (h *UserHandler) GetProfile(ctx *fiber.Ctx) error {
 
 	return ctx.Status(200).JSON(fiber.Map{
 		"message": "get profile success",
-		"user": user,
+		"user": u,
 		"address": address,
 	})
 }
@@ -196,7 +196,7 @@ func (h *UserHandler) UpdateProfile(ctx *fiber.Ctx) error {
 		return rest.BadRequest(ctx, "invalid request body for update profile")
 	}
 	
-	user, address, err := h.Svc.UpdateProfile(user.ID, profileInput)
+	u, address, err := h.Svc.UpdateProfile(user.ID, profileInput)
 	
 	if err != nil {
 		return rest.ErrorResponse(ctx, 500, err)
@@ -204,7 +204,7 @@ func (h *UserHandler) UpdateProfile(ctx *fiber.Ctx) error {
 
 	return ctx.Status(200).JSON(fiber.Map{
 		"message": "update profile success",
-		"user": user,
+		"user": u,
 		"address": address,
 	})
 }
