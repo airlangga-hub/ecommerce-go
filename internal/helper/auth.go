@@ -134,10 +134,10 @@ func (a *Auth) Authorize(ctx *fiber.Ctx) error {
 }
 
 
-func (a *Auth) GetCurrentUser(ctx *fiber.Ctx) domain.User {
+func (a *Auth) GetCurrentUser(ctx *fiber.Ctx) dto.UserLocals {
 	user := ctx.Locals("user")
 
-	return user.(domain.User)
+	return user.(dto.UserLocals)
 }
 
 
