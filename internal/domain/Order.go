@@ -5,7 +5,7 @@ import "time"
 
 type Order struct {
 	ID					uint			`json:"id" gorm:"primaryKey"`
-	UserID				uint			`json:"user_id"`
+	UserID				uint			`json:"user_id" gorm:"index;not null"`
 	Status				string			`json:"status"`
 	Amount				float64			`json:"amount"`
 	TransactionID		string			`json:"transaction_id"`
