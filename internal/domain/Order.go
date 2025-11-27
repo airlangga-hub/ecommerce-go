@@ -12,7 +12,7 @@ type Order struct {
 	TransactionID		string			`json:"transaction_id"`
 	OrderRefNumber		uint			`json:"order_ref_number"`
 	PaymentID			string			`json:"payment_id"`
-	OrderItems			[]*OrderItem	`json:"order_items"`
+	OrderItems			[]*OrderItem	`json:"-"`
 	CreatedAt			time.Time		`json:"created_at"`
 	UpdatedAt			time.Time		`json:"updated_at"`
 }
