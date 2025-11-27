@@ -4,11 +4,13 @@ import (
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest"
 	"github.com/airlangga-hub/ecommerce-go/internal/repository"
 	"github.com/airlangga-hub/ecommerce-go/internal/service"
+	"github.com/airlangga-hub/ecommerce-go/pkg/payment"
 	"github.com/gofiber/fiber/v2"
 )
 
 type TransactionHandler struct {
-	Svc service.TransactionService
+	Svc 			service.TransactionService
+	PaymentClient	payment.PaymentClient
 }
 
 func SetupTransactionRoutes(rh *rest.HttpHandler) {
@@ -18,10 +20,12 @@ func SetupTransactionRoutes(rh *rest.HttpHandler) {
 	transactionService := service.TransactionService{
 		Repo: repository.NewTransactionRepository(rh.DB),
 		Auth: rh.Auth,
-		PaymentClient: rh.PaymentClient,
 	}
 
-	handler := &TransactionHandler{Svc: transactionService}
+	handler := &TransactionHandler{
+		Svc: transactionService,
+		PaymentClient: rh.PaymentClient,
+	}
 
 	// buyer endpoints
 	buyerRoutes := app.Group("/", handler.Svc.Auth.Authorize)
