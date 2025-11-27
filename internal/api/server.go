@@ -33,6 +33,7 @@ func StartServer(cfg *config.AppConfig) {
 		&domain.Address{},
 		&domain.Order{},
 		&domain.OrderItem{},
+		&domain.Payment{},
 	)
 
 	if err != nil {
