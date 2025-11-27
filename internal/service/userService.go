@@ -165,15 +165,15 @@ func (s *UserService) CreateProfile(id uint, input dto.ProfileInput) error {
 }
 
 
-func (s *UserService) GetProfile(id uint) (domain.User, []*domain.Address, error) {
+func (s *UserService) GetProfile(id uint) (domain.User, error) {
 	
-	user, addresses, err := s.Repo.GetProfile(id)
+	user, err := s.Repo.FindUserByID(id)
 	
 	if err != nil {
-		return domain.User{}, nil, err
+		return domain.User{}, err
 	}
 	
-	return user, addresses, nil
+	return user, nil
 }
 
 

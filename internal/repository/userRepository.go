@@ -18,7 +18,6 @@ type UserRepository interface {
 	CreateBankAccount(bank domain.BankAccount) error
 	
 	CreateProfile(user domain.User, address domain.Address) error
-	GetProfile(id uint) (domain.User, []*domain.Address, error)
 	UpdateProfile(user domain.User, address *domain.Address) (domain.User, *domain.Address, error) 
 	
 	FindCartItems(userID uint) ([]*domain.CartItem, error)
@@ -56,9 +55,10 @@ func (ur *userRepository) CreateUser(user domain.User) (domain.User, error) {
 
 
 func (ur *userRepository) FindUser(email string) (domain.User, error) {
+	
 	var user domain.User
 
-	err := ur.db.First(&user, "email=?", email).Error
+	err := ur.db.Preload("Addresses").First(&user, "email=?", email).Error
 
 	if err != nil {
 		log.Println(" --> db_err FindUser: ", err)
@@ -70,14 +70,19 @@ func (ur *userRepository) FindUser(email string) (domain.User, error) {
 
 
 func (ur *userRepository) FindUserByID(id uint) (domain.User, error) {
+	
 	var user domain.User
 
-	err := ur.db.First(&user, id).Error
+	err := ur.db.Preload("BankAccounts").
+		Preload("Addresses").
+		Preload("Orders").
+		First(&user, id).Error
 
 	if err != nil {
 		log.Println(" --> db_err FindUserByID: ", err)
 		return domain.User{}, errors.New("user does not exist")
 	}
+	
 	return user, nil
 }
 
@@ -133,25 +138,6 @@ func (ur *userRepository) CreateProfile(user domain.User, address domain.Address
 	}
 	
 	return nil
-}
-
-
-func (ur *userRepository) GetProfile(id uint) (domain.User, []*domain.Address, error) {
-	
-	user := domain.User{ID: id}
-	addresses := []*domain.Address{}
-	
-	if err := ur.db.Select("first_name", "last_name", "email", "phone", "user_type").First(&user).Error; err != nil {
-		log.Println(" --> db_err GetProfile (find user): ", err)
-		return domain.User{}, nil, errors.New("error getting profile")
-	}
-	
-	if err := ur.db.Find(&addresses, "user_id=?", id).Error; err != nil {
-		log.Println(" --> db_err GetProfile (find address): ", err)
-		return domain.User{}, nil, errors.New("error getting profile")
-	}
-	
-	return user, addresses, nil
 }
 
 
