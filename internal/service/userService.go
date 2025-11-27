@@ -172,7 +172,8 @@ func (s *UserService) GetProfile(id uint) (domain.User, error) {
 }
 
 
-func (s *UserService) UpdateProfile(id uint, input dto.ProfileInput) (domain.User, *domain.Address, error) {
+func (s *UserService) UpdateProfile(id uint, input dto.ProfileInput) (domain.User, error) {
+	
 	user := domain.User{
 		ID: id,
 		FirstName: input.FirstName,
@@ -193,13 +194,13 @@ func (s *UserService) UpdateProfile(id uint, input dto.ProfileInput) (domain.Use
 		}
 	}
 	
-	user, address, err := s.Repo.UpdateProfile(user, address)
+	user, err := s.Repo.UpdateProfile(user, address)
 	
 	if err != nil {
-		return domain.User{}, nil, err
+		return domain.User{}, err
 	}
 	
-	return user, address, nil
+	return user, nil
 }
 
 

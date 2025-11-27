@@ -18,7 +18,7 @@ type UserRepository interface {
 	CreateBankAccount(bank domain.BankAccount) error
 	
 	CreateProfile(user domain.User, address domain.Address) error
-	UpdateProfile(user domain.User, address *domain.Address) (domain.User, *domain.Address, error) 
+	UpdateProfile(user domain.User, address *domain.Address) (domain.User, error) 
 	
 	FindCartItems(userID uint) ([]*domain.CartItem, error)
 	FindCartItemByID(userID, productID uint) (domain.CartItem, error)
@@ -141,34 +141,34 @@ func (ur *userRepository) CreateProfile(user domain.User, address domain.Address
 }
 
 
-func (ur *userRepository) UpdateProfile(user domain.User, address *domain.Address) (domain.User, *domain.Address, error) {
+func (ur *userRepository) UpdateProfile(user domain.User, address *domain.Address) (domain.User, error) {
 	
 	tx := ur.db.Updates(&user)
 	
 	if err := tx.Error; err != nil {
 		log.Println(" --> db_err UpdateProfile (update user): ", err)
-		return domain.User{}, nil, errors.New("error updating profile")
+		return domain.User{}, errors.New("error updating profile")
 	}
 	
 	if tx.RowsAffected == 0 {
-		return domain.User{}, nil, errors.New("user not found, failed to update profile")
+		return domain.User{}, errors.New("user not found, failed to update profile")
 	}
 
 	if address != nil {
 		
-		tx = ur.db.Updates(&address)
+		tx = ur.db.Updates(address)
 		
 		if err := tx.Error; err != nil {
 			log.Println(" --> db_err UpdateProfile (update address): ", err)
-			return domain.User{}, nil, errors.New("error updating profile")
+			return domain.User{}, errors.New("error updating profile")
 		}
 		
 		if tx.RowsAffected == 0 {
-			return domain.User{}, nil, errors.New("user not found, failed to update profile")
+			return domain.User{}, errors.New("user not found, failed to update profile")
 		}
 	}
 		
-	return user, address, nil
+	return user, nil
 }
 
 

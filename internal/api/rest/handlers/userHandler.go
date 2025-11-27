@@ -195,7 +195,7 @@ func (h *UserHandler) UpdateProfile(ctx *fiber.Ctx) error {
 		return rest.BadRequest(ctx, "invalid request body for update profile")
 	}
 	
-	u, address, err := h.Svc.UpdateProfile(user.ID, profileInput)
+	u, err := h.Svc.UpdateProfile(user.ID, profileInput)
 	
 	if err != nil {
 		return rest.ErrorResponse(ctx, 500, err)
@@ -204,7 +204,6 @@ func (h *UserHandler) UpdateProfile(ctx *fiber.Ctx) error {
 	return ctx.Status(200).JSON(fiber.Map{
 		"message": "update profile success",
 		"user": u,
-		"address": address,
 	})
 }
 
