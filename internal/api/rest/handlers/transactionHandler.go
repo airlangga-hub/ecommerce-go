@@ -40,7 +40,7 @@ func SetupTransactionRoutes(rh *rest.HttpHandler) {
 
 func (h *TransactionHandler) MakePayment(ctx *fiber.Ctx) error {
 	
-	stripeCheckout, err := h.PaymentClient.CreatePayment(5, 123, 34)
+	stripeCheckout, err := h.PaymentClient.CreatePayment(10, 123, 34)
 	
 	if err != nil {
 		return rest.ErrorResponse(ctx, 500, err)

@@ -27,7 +27,9 @@ func NewTransactionRepository(db *gorm.DB) TransactionRepository {
 }
 
 
-func (r *transactionRepository) CreatePayment(payment domain.Payment) error
+func (r *transactionRepository) CreatePayment(payment domain.Payment) error {
+	return nil
+}
 
 
 func (r *transactionRepository) FindOrders(userID uint) ([]*domain.Order, error) {
