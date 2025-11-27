@@ -25,4 +25,5 @@ type User struct {
 	BankAccounts	[]*BankAccount	`json:"bank_accounts"`
 	Addresses		[]*Address		`json:"addresses"`
 	Orders			[]*Order		`json:"orders"`
+	Payments		[]*Payment		`json:"payments"`
 }
