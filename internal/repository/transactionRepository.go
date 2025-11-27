@@ -58,5 +58,5 @@ func (r *transactionRepository) FindOrderByID(id, userID uint) (dto.SellerOrderD
 		return dto.SellerOrderDetails{}, errors.New("error finding order by id")
 	}
 	
-	
+	return dto.SellerOrderDetails{}, nil
 }
