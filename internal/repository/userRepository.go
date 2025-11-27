@@ -143,7 +143,7 @@ func (ur *userRepository) CreateProfile(user domain.User, address domain.Address
 
 func (ur *userRepository) UpdateProfile(user domain.User, address *domain.Address) (domain.User, error) {
 	
-	tx := ur.db.Updates(&user)
+	tx := ur.db.Updates(user)
 	
 	if err := tx.Error; err != nil {
 		log.Println(" --> db_err UpdateProfile (update user): ", err)
@@ -166,6 +166,11 @@ func (ur *userRepository) UpdateProfile(user domain.User, address *domain.Addres
 		if tx.RowsAffected == 0 {
 			return domain.User{}, errors.New("user not found, failed to update profile")
 		}
+	}
+	
+	if err := ur.db.Preload("Addresses").First(&user).Error; err != nil {
+		log.Println(" --> db_err UpdateProfile (find user): ", err)
+		return domain.User{}, errors.New("error finding user")
 	}
 		
 	return user, nil
