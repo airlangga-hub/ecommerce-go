@@ -172,7 +172,7 @@ func (h *UserHandler) CreateProfile(ctx *fiber.Ctx) error {
 func (h *UserHandler) GetProfile(ctx *fiber.Ctx) error {
 	user := h.Svc.Auth.GetCurrentUser(ctx)
 	
-	u, address, err := h.Svc.GetProfile(user.ID)
+	u, err := h.Svc.GetProfile(user.ID)
 	
 	if err != nil {
 		return rest.ErrorResponse(ctx, 500, err)
@@ -181,7 +181,6 @@ func (h *UserHandler) GetProfile(ctx *fiber.Ctx) error {
 	return ctx.Status(200).JSON(fiber.Map{
 		"message": "get profile success",
 		"user": u,
-		"address": address,
 	})
 }
 
