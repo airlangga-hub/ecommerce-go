@@ -8,6 +8,7 @@ import (
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest/handlers"
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
 	"github.com/airlangga-hub/ecommerce-go/internal/helper"
+	"github.com/airlangga-hub/ecommerce-go/pkg/payment"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -42,6 +43,9 @@ func StartServer(cfg *config.AppConfig) {
 	log.Println("DB Migration successful")
 
 	auth := &helper.Auth{Secret: cfg.AppSecret}
+	
+	paymentClient := payment.NewPaymentClient(cfg.StripeSecret, cfg.SuccessURL, cfg.CancelURL)
+	
 	app := fiber.New()
 
 	httpHandler := &rest.HttpHandler{
@@ -49,6 +53,7 @@ func StartServer(cfg *config.AppConfig) {
 		DB: db,
 		Auth: auth,
 		Config: cfg,
+		PaymentClient: paymentClient,
 	}
 
 	setupRoutes(httpHandler)
