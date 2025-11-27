@@ -1,15 +1,19 @@
 package repository
 
 import (
+	"errors"
+	"log"
+
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
+	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"gorm.io/gorm"
 )
 
 
 type TransactionRepository interface{
-	CreatePayment(payment *domain.Payment) error
+	CreatePayment(payment domain.Payment) error
 	FindOrders(userID uint) ([]*domain.Order, error)
-	FindOrderByID(id, userID uint) (domain.Order, error)
+	FindOrderByID(id, userID uint) (dto.SellerOrderDetails, error)
 }
 
 
@@ -23,10 +27,36 @@ func NewTransactionRepository(db *gorm.DB) TransactionRepository {
 }
 
 
-func (r *transactionRepository) CreatePayment(payment *domain.Payment) error
+func (r *transactionRepository) CreatePayment(payment domain.Payment) error
 
 
-func (r *transactionRepository) FindOrders(userID uint) ([]*domain.Order, error)
+func (r *transactionRepository) FindOrders(userID uint) ([]*domain.Order, error) {
+	
+	orders := []*domain.Order{}
+	
+	tx := r.db.Find(&orders, "user_id=?", userID)
+	
+	if err := tx.Error; err != nil {
+		log.Println("--> db_err FindOrders: ", err)
+		return nil, errors.New("error finding orders")
+	}
+	
+	if len(orders) == 0 {
+		return nil, errors.New("user_id not found, couldn't find orders")
+	}
+	
+	return orders, nil
+}
 
 
-func (r *transactionRepository) FindOrderByID(id, userID uint) (domain.Order, error)
+func (r *transactionRepository) FindOrderByID(id, userID uint) (dto.SellerOrderDetails, error) {
+	
+	order := domain.Order{}
+	
+	if err := r.db.First(&order, "id=? and user_id=?", id, userID).Error; err != nil {
+		log.Println("--> db_err FindOrderByID: ", err)
+		return dto.SellerOrderDetails{}, errors.New("error finding order by id")
+	}
+	
+	
+}
