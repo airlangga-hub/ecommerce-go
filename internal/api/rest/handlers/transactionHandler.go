@@ -11,16 +11,17 @@ type TransactionHandler struct {
 	Svc service.TransactionService
 }
 
-func SetupTransactionHandler(rh *rest.HttpHandler) {
+func SetupTransactionRoutes(rh *rest.HttpHandler) {
 
 	app := rh.App
 
 	transactionService := service.TransactionService{
 		Repo: repository.NewTransactionRepository(rh.DB),
 		Auth: rh.Auth,
+		PaymentClient: rh.PaymentClient,
 	}
 
-	handler := TransactionHandler{Svc: transactionService}
+	handler := &TransactionHandler{Svc: transactionService}
 
 	// buyer endpoints
 	buyerRoutes := app.Group("/", handler.Svc.Auth.Authorize)
