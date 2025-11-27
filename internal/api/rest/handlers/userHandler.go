@@ -41,7 +41,7 @@ func SetupUserRoutes(rh *rest.HttpHandler) {
 
 	privateRoutes.Post("/profile", handler.CreateProfile)
 	privateRoutes.Get("/profile", handler.GetProfile)
-	privateRoutes.Patch("/profile/", handler.UpdateProfile)
+	privateRoutes.Patch("/profile", handler.UpdateProfile)
 
 	privateRoutes.Post("/cart", handler.AddToCart)
 	privateRoutes.Get("/cart", handler.GetCart)
