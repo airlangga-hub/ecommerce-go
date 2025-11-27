@@ -34,6 +34,8 @@ func NewPaymentClient(stripeSecretKey, successURL, cancelURL string) PaymentClie
 
 func (p *payment) CreatePayment(amount float64, userID, orderID uint) (*stripe.CheckoutSession, error) {
 	
+	stripe.Key = p.stripeSecretKey
+	
 	amountInCents := amount * 100
 	
 	params := &stripe.CheckoutSessionParams{
@@ -69,4 +71,17 @@ func (p *payment) CreatePayment(amount float64, userID, orderID uint) (*stripe.C
 }
 
 
-func (p *payment) GetPaymentStatus(paymentID string) (*stripe.CheckoutSession, error)
+func (p *payment) GetPaymentStatus(paymentID string) (*stripe.CheckoutSession, error) {
+	
+	stripe.Key = p.stripeSecretKey
+	
+	session, err := session.Get(paymentID, nil)
+	
+	if err != nil {
+		log.Println("--> stripe_err GetPaymentStatus: ", err)
+		return nil, errors.New("error getting payment status")
+	}
+	
+	return session, nil
+	
+}
