@@ -42,15 +42,10 @@ func (s *UserService) SignUp(input dto.UserSignUp) (string, error) {
 }
 
 
-func (s *UserService) FindUserByEmail(email string) (domain.User, error) {
-	user, err := s.Repo.FindUser(email)
-
-	return user, err
-}
-
-
 func (s *UserService) UserLogin(email, password string) (string, error) {
-	user, err := s.FindUserByEmail(email)
+	
+	user, err := s.Repo.FindUser(email)
+	
 	if err != nil {
 		return "", errors.New("user does not exist with the provided email")
 	}
