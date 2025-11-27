@@ -58,7 +58,7 @@ func (ur *userRepository) FindUser(email string) (domain.User, error) {
 	
 	var user domain.User
 
-	err := ur.db.Preload("Addresses").First(&user, "email=?", email).Error
+	err := ur.db.First(&user, "email=?", email).Error
 
 	if err != nil {
 		log.Println(" --> db_err FindUser: ", err)
@@ -74,7 +74,7 @@ func (ur *userRepository) FindUserByID(id uint) (domain.User, error) {
 	var user domain.User
 
 	err := ur.db.Preload("BankAccounts").
-		Preload("Addresses").
+		Preload("Addresses", func(db *gorm.DB) *gorm.DB {return db.Select("id", "user_id", "address_line1", "address_line2", "city", "country")}).
 		Preload("Orders").
 		First(&user, id).Error
 

@@ -8,7 +8,7 @@ import (
 type BankAccount struct {
 	ID 					uint 		`json:"id" gorm:"primaryKey"`
 	UserID 				uint 		`json:"user_id"`
-	User				User		
+	User				User		`json:"-"`
 	BankAccountNumber 	uint 		`json:"bank_account_number" gorm:"index;unique;not null"`
 	SwiftCode 			string 		`json:"swift_code"`
 	PaymentType 		string 		`json:"payment_type"`

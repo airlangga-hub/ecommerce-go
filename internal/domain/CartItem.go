@@ -11,9 +11,9 @@ type CartItem struct {
 	CreatedAt 	time.Time 	`json:"created_at" gorm:"default:current_timestamp"`
 	UpdatedAt 	time.Time 	`json:"updated_at" gorm:"default:current_timestamp"`
 	UserID    	uint      	`json:"user_id" gorm:"uniqueIndex:idx_user_product"`
-	User		User
+	User		User		`json:"-"`
 	ProductID 	uint      	`json:"product_id" gorm:"uniqueIndex:idx_user_product"`
-	Product		Product
+	Product		Product		`json:"-"`
 	SellerID  	uint      	`json:"seller_id"`
-	Seller		User		`gorm:"foreignKey:SellerID"`
+	Seller		User		`json:"-" gorm:"foreignKey:SellerID"`
 }
