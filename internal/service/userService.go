@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/airlangga-hub/ecommerce-go/config"
@@ -292,10 +293,10 @@ func (s *UserService) CreateCart(input dto.CartRequest, userID uint) ([]*domain.
 }
 
 
-func (s *UserService) CreateOrder(userID uint) (int, error) {
+func (s *UserService) CreateOrder(userID uint) (uint, error) {
 	
 	// find cart items
-	cartItems, err := s.Repo.FindCartItems(userID)
+	cartItems, amount, err := s.FindCart(userID)
 	if err != nil {
 		return 0, err
 	}
@@ -307,13 +308,15 @@ func (s *UserService) CreateOrder(userID uint) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("error generating order ref: %v", err)
 	}
+	orderRefNum, err := strconv.ParseUint(orderRef, 10, 64)
+	if err != nil {
+		return 0, errors.New("error parsing order ref")
+	}
 	
 	// create order with generated order ref number
-	var amount float64
 	var orderItems []*domain.OrderItem
 	
 	for _, item := range cartItems {
-		amount += item.Price * float64(item.Qty)
 		
 		orderItems = append(orderItems, &domain.OrderItem{
 			ProductID: item.ProductID,
@@ -330,7 +333,7 @@ func (s *UserService) CreateOrder(userID uint) (int, error) {
 		Amount: amount,
 		OrderItems: orderItems,
 		TransactionID: txnID,
-		OrderRefNumber: uint(orderRef),
+		OrderRefNumber: uint(orderRefNum),
 		PaymentID: paymentID,
 	}
 	
@@ -345,7 +348,7 @@ func (s *UserService) CreateOrder(userID uint) (int, error) {
 	
 	// send email to user with order details
 	
-	return orderRef, nil
+	return uint(orderRefNum), nil
 }
 
 

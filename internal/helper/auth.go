@@ -3,6 +3,8 @@ package helper
 import (
 	"errors"
 	"fmt"
+	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -143,7 +145,19 @@ func (a *Auth) GetCurrentUser(ctx *fiber.Ctx) dto.UserLocals {
 
 func (a *Auth) GenerateCode() (int, error) {
 
-	return RandomNumbers(6)
+	nums, err := RandomNumbers(6)
+	if err != nil {
+		log.Println("--> auth_err GenerateCode (random numbers): ", err)
+		return 0, errors.New("error generating code")
+	}
+	
+	n, err := strconv.Atoi(nums)
+	if err != nil {
+		log.Println("--> auth_err GenerateCode (strconv.Atoi): ", err)
+		return 0, errors.New("error generating code")
+	}
+	
+	return n, nil
 }
 
 

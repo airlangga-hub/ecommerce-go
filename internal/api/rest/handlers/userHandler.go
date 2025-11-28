@@ -235,7 +235,7 @@ func (h *UserHandler) GetCart(ctx *fiber.Ctx) error {
 	
 	user := h.Svc.Auth.GetCurrentUser(ctx)
 	
-	cartItems, err := h.Svc.FindCart(user.ID)
+	cartItems, _, err := h.Svc.FindCart(user.ID)
 	if err != nil {
 		return rest.ErrorResponse(ctx, 404, err)
 	}

@@ -12,6 +12,8 @@ import (
 
 type TransactionRepository interface{
 	CreatePayment(payment domain.Payment) error
+	FindPayment(userID uint) (domain.Payment, error)
+	
 	FindOrders(userID uint) ([]*domain.Order, error)
 	FindOrderByID(id, userID uint) (dto.SellerOrderDetails, error)
 }
@@ -28,7 +30,26 @@ func NewTransactionRepository(db *gorm.DB) TransactionRepository {
 
 
 func (r *transactionRepository) CreatePayment(payment domain.Payment) error {
+	
+	if err := r.db.Create(&payment).Error; err != nil {
+		log.Println("--> db_err CreatePayment: ", err)
+		return errors.New("error creating payment")
+	}
+	
 	return nil
+}
+
+
+func (r *transactionRepository) FindPayment(userID uint) (domain.Payment, error) {
+	
+	payment := domain.Payment{}
+	
+	if err := r.db.First(&payment, "user_id=? and status=initial", userID).Error; err != nil {
+		log.Println("--> db_err FindPayment: ", err)
+		return domain.Payment{}, errors.New("payment does not exist")
+	}
+	
+	return payment, nil
 }
 
 

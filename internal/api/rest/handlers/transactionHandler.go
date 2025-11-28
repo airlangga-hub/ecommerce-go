@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest"
+	"github.com/airlangga-hub/ecommerce-go/internal/helper"
 	"github.com/airlangga-hub/ecommerce-go/internal/repository"
 	"github.com/airlangga-hub/ecommerce-go/internal/service"
 	"github.com/airlangga-hub/ecommerce-go/pkg/payment"
@@ -50,8 +51,17 @@ func (h *TransactionHandler) MakePayment(ctx *fiber.Ctx) error {
 	
 	user := h.Svc.Auth.GetCurrentUser(ctx)
 	
-	stripeCheckout, err := h.PaymentClient.CreatePayment(10, 123, 34)
+	_, amount, err := h.UserSvc.FindCart(user.ID)
+	if err != nil {
+		return rest.ErrorResponse(ctx, 404, err)
+	}
 	
+	orderID, err := helper.RandomNumbers(8)
+	if err != nil {
+		return rest.ErrorResponse(ctx, 500, err)
+	}
+	
+	stripeCheckout, err := h.PaymentClient.CreatePayment(amount, user.ID, orderID)	
 	if err != nil {
 		return rest.ErrorResponse(ctx, 500, err)
 	}
