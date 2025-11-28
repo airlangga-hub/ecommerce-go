@@ -71,12 +71,12 @@ func (ur *userRepository) FindUser(email string) (domain.User, error) {
 
 func (ur *userRepository) FindUserByID(id uint) (domain.User, error) {
 	
-	var user domain.User
+	user := domain.User{ID: id}
 
 	err := ur.db.Preload("BankAccounts").
-		Preload("Addresses", func(db *gorm.DB) *gorm.DB {return db.Select("id", "user_id", "address_line1", "address_line2", "city", "country")}).
+		Preload("Addresses").
 		Preload("Orders").
-		First(&user, id).Error
+		First(&user).Error
 
 	if err != nil {
 		log.Println(" --> db_err FindUserByID: ", err)
@@ -91,9 +91,7 @@ func (ur *userRepository) UpdateUser(id uint, user domain.User) (domain.User, er
 
 	user.ID = id
 
-	updated := domain.User{}
-
-	tx := ur.db.Updates(user).Scan(&updated)
+	tx := ur.db.Clauses(clause.Returning{}).Updates(&user)
 
 	if err := tx.Error; err != nil {
 		log.Println(" --> db_err UpdateUser: ", err)
@@ -104,7 +102,7 @@ func (ur *userRepository) UpdateUser(id uint, user domain.User) (domain.User, er
 		return domain.User{}, errors.New("user not found, failed to update")
 	}
 
-	return updated, nil
+	return user, nil
 }
 
 
@@ -228,9 +226,7 @@ func (ur *userRepository) FindCartItemByID(userID, productID uint) (domain.CartI
 
 func (ur *userRepository) UpdateCartItem(c domain.CartItem) (domain.CartItem, error) {
 	
-	updated := domain.CartItem{}
-	
-	tx := ur.db.Updates(c).Scan(&updated)
+	tx := ur.db.Clauses(clause.Returning{}).Updates(&c)
 	
 	if err := tx.Error; err != nil {
 		log.Println(" --> db_err UpdateCartItem: ", err)
@@ -241,7 +237,7 @@ func (ur *userRepository) UpdateCartItem(c domain.CartItem) (domain.CartItem, er
 		return domain.CartItem{}, errors.New("cart item not found, failed to update")
 	}
 	
-	return updated, nil
+	return c, nil
 }
 
 
