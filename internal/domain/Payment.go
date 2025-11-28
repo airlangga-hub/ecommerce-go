@@ -12,7 +12,7 @@ type Payment struct {
 	TransactionID	uint				`json:"transaction_id"`
 	CustomerID		string				`json:"customer_id"`
 	PaymentID		string				`json:"payment_id"`
-	Status			PaymentStatus		`json:"status"`
+	Status			PaymentStatus		`json:"status" gorm:"default:initial"`
 	Response		string				`json:"response"`
 	CreatedAt		time.Time			`json:"created_at"`
 	UpdatedAt		time.Time			`json:"updated_at"`
