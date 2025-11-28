@@ -28,13 +28,13 @@ func SetupUserRoutes(rh *rest.HttpHandler) {
 	handler := &UserHandler{Svc: userService}
 
 	// Public endpoints
-	publicRoutes := app.Group("/users")
+	publicRoutes := app.Group("/")
 
 	publicRoutes.Post("/register", handler.Register)
 	publicRoutes.Post("/login", handler.Login)
 
 	// Private endpoints
-	privateRoutes := publicRoutes.Group("/", handler.Svc.Auth.Authorize)
+	privateRoutes := publicRoutes.Group("/users", handler.Svc.Auth.Authorize)
 
 	privateRoutes.Post("/verify", handler.Verify)
 	privateRoutes.Get("/verify", handler.GetVerificationCode)
@@ -46,7 +46,7 @@ func SetupUserRoutes(rh *rest.HttpHandler) {
 	privateRoutes.Post("/cart", handler.AddToCart)
 	privateRoutes.Get("/cart", handler.GetCart)
 
-	privateRoutes.Post("/order", handler.CreateOrder)
+	// privateRoutes.Post("/order", handler.CreateOrder)
 	privateRoutes.Get("/order", handler.GetOrders)
 	privateRoutes.Get("/order/:id", handler.GetOrderByID)
 
@@ -247,21 +247,21 @@ func (h *UserHandler) GetCart(ctx *fiber.Ctx) error {
 }
 
 
-func (h *UserHandler) CreateOrder(ctx *fiber.Ctx) error {
+// func (h *UserHandler) CreateOrder(ctx *fiber.Ctx) error {
 	
-	user := h.Svc.Auth.GetCurrentUser(ctx)
+// 	user := h.Svc.Auth.GetCurrentUser(ctx)
 	
-	orderRef, err := h.Svc.CreateOrder(user.ID)
+// 	orderRef, err := h.Svc.CreateOrder(user.ID)
 	
-	if err != nil {
-		return rest.ErrorResponse(ctx, 500, err)
-	}
+// 	if err != nil {
+// 		return rest.ErrorResponse(ctx, 500, err)
+// 	}
 	
-	return ctx.Status(200).JSON(fiber.Map{
-		"message": "create order success",
-		"order": orderRef,
-	})
-}
+// 	return ctx.Status(200).JSON(fiber.Map{
+// 		"message": "create order success",
+// 		"order": orderRef,
+// 	})
+// }
 
 
 func (h *UserHandler) GetOrders(ctx *fiber.Ctx) error {

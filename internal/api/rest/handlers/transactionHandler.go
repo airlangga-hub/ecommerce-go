@@ -1,7 +1,11 @@
 package handlers
 
 import (
+	"encoding/json"
+
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest"
+	"github.com/airlangga-hub/ecommerce-go/internal/domain"
+	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"github.com/airlangga-hub/ecommerce-go/internal/helper"
 	"github.com/airlangga-hub/ecommerce-go/internal/repository"
 	"github.com/airlangga-hub/ecommerce-go/internal/service"
@@ -37,8 +41,9 @@ func SetupTransactionRoutes(rh *rest.HttpHandler) {
 	}
 
 	// buyer endpoints
-	buyerRoutes := app.Group("/", handler.Svc.Auth.Authorize)
+	buyerRoutes := app.Group("/buyer", handler.Svc.Auth.Authorize)
 	buyerRoutes.Post("/payment", handler.MakePayment)
+	buyerRoutes.Get("/verify", handler.VerifyPayment)
 
 	// seller endpoints
 	sellerRoutes := app.Group("/seller", handler.Svc.Auth.AuthorizeSeller)
@@ -50,16 +55,18 @@ func SetupTransactionRoutes(rh *rest.HttpHandler) {
 func (h *TransactionHandler) MakePayment(ctx *fiber.Ctx) error {
 	
 	user := h.Svc.Auth.GetCurrentUser(ctx)
+	stripePubKey := h.UserSvc.Config.StripePubKey
 	
 	activePayment, err := h.Svc.GetActivePayment(user.ID)
 	if activePayment.ID > 0 {
 		return ctx.Status(200).JSON(fiber.Map{
 			"message": "create payment",
-			"url": activePayment.PaymentURL,
+			"stripe_pub_key": stripePubKey,
+			"client_secret": activePayment.ClientSecret,
 		})
 	}
 	if err != nil {
-		return rest.ErrorResponse(ctx, 500, err)
+		return rest.ErrorResponse(ctx, 404, err)
 	}
 	
 	_, amount, err := h.UserSvc.FindCart(user.ID)
@@ -72,20 +79,74 @@ func (h *TransactionHandler) MakePayment(ctx *fiber.Ctx) error {
 		return rest.ErrorResponse(ctx, 500, err)
 	}
 	
-	stripeCheckout, err := h.PaymentClient.CreatePayment(amount, user.ID, orderRef)	
+	paymentIntent, err := h.PaymentClient.CreatePayment(amount, user.ID, orderRef)	
 	if err != nil {
 		return rest.ErrorResponse(ctx, 500, err)
 	}
 	
-	if err := h.Svc.SavePayment(user.ID, stripeCheckout, amount, orderRef); err != nil {
+	if err := h.Svc.SavePayment(dto.CreatePayment{
+		UserID: user.ID,
+		Amount: amount,
+		ClientSecret: paymentIntent.ClientSecret,
+		PaymentID: paymentIntent.ID,
+		OrderRef: orderRef,
+	}); err != nil {
 		return rest.ErrorResponse(ctx, 500, err)
 	}
 	
 	return ctx.Status(200).JSON(fiber.Map{
-		"message": "payment success",
-		"result": stripeCheckout,
-		"success_url": stripeCheckout.URL,
+		"message": "create payment",
+		"stripe_pub_key": stripePubKey,
+		"client_secret": paymentIntent.ClientSecret,
 	})
+}
+
+
+func (h *TransactionHandler) VerifyPayment(ctx *fiber.Ctx) error {
+	
+	// grab authorized user
+	user := h.Svc.Auth.GetCurrentUser(ctx)
+	
+	// active payment exist?
+	activePayment, err := h.Svc.GetActivePayment(user.ID)
+	if err != nil || activePayment.ID == 0 {
+		return ctx.Status(404).JSON(fiber.Map{
+			"error": "no active payment exists",
+		})
+	}
+	
+	// fetch payment status from stripe
+	paymentIntent, err := h.PaymentClient.GetPaymentStatus(activePayment.PaymentID)
+	if err != nil {
+		return rest.ErrorResponse(ctx, 404, err)
+	}
+	
+	paymentJson, err := json.Marshal(paymentIntent)
+	if err != nil {
+		return rest.ErrorResponse(ctx, 500, err)
+	}
+	
+	paymentLog := string(paymentJson)
+	paymentStatus := "failed"
+	
+	// if payment succeeded then create order
+	if paymentIntent.Status == "succeeded" {
+		paymentStatus = "success"
+		
+		// create order
+		if err := h.UserSvc.CreateOrder(user.ID, activePayment.Amount, activePayment.OrderRef, activePayment.PaymentID); err != nil {
+			return rest.ErrorResponse(ctx, 500, err)
+		}
+	}
+	
+	// update payment status
+	activePayment.Status = domain.PaymentStatus(paymentStatus)
+	activePayment.Response = paymentLog
+	if err := h.Svc.UpdatePayment(activePayment); err != nil {
+		return rest.ErrorResponse(ctx, 500, err)
+	}
+	
+	return rest.OkResponse(ctx, "payment verified successfully", nil) 
 }
 
 

@@ -10,12 +10,11 @@ type Payment struct {
 	OrderRef		string				`json:"order_ref"`
 	CaptureMethod	string				`json:"capture_method"`
 	Amount			float64				`json:"amount"`
-	TransactionID	uint				`json:"transaction_id"`
 	CustomerID		string				`json:"customer_id"`
 	PaymentID		string				`json:"payment_id"`
+	ClientSecret	string				`json:"client_secret"`
 	Status			PaymentStatus		`json:"status" gorm:"default:initial"`
 	Response		string				`json:"response"`
-	PaymentURL		string				`json:"payment_url"`
 	CreatedAt		time.Time			`json:"created_at"`
 	UpdatedAt		time.Time			`json:"updated_at"`
 }

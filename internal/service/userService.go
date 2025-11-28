@@ -292,23 +292,15 @@ func (s *UserService) CreateCart(input dto.CartRequest, userID uint) ([]*domain.
 }
 
 
-func (s *UserService) CreateOrder(userID uint) (string, error) {
+func (s *UserService) CreateOrder(userID uint, amount float64, orderRef, paymentID string) error {
 	
 	// find cart items
-	cartItems, amount, err := s.FindCart(userID)
+	cartItems, _, err := s.FindCart(userID)
 	if err != nil {
-		return "", err
+		return err
 	}
 	
-	// find success payment
-	txnID := "HDSAU21"
-	paymentID := "IOEWQ231"
-	orderRef, err := helper.RandomNumbers(8)
-	if err != nil {
-		return "", fmt.Errorf("error generating order ref: %v", err)
-	}
-	
-	// create order with generated order ref number
+	// create order
 	var orderItems []*domain.OrderItem
 	
 	for _, item := range cartItems {
@@ -327,23 +319,22 @@ func (s *UserService) CreateOrder(userID uint) (string, error) {
 		UserID: userID,
 		Amount: amount,
 		OrderItems: orderItems,
-		TransactionID: txnID,
 		OrderRef: orderRef,
 		PaymentID: paymentID,
 	}
 	
 	if err := s.Repo.CreateOrder(order); err != nil {
-		return "", err
+		return err
 	}
 	
 	// delete cart items
 	if err := s.Repo.DeleteCartItems(userID); err != nil {
-		return "", err
+		return err
 	}
 	
 	// send email to user with order details
 	
-	return orderRef, nil
+	return nil
 }
 
 

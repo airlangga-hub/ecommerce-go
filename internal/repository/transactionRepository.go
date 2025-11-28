@@ -11,8 +11,9 @@ import (
 
 
 type TransactionRepository interface{
-	CreatePayment(payment domain.Payment) error
-	FindActivePayment(userID uint) (domain.Payment, error)
+	CreatePayment(payment *domain.Payment) error
+	FindActivePayment(userID uint) (*domain.Payment, error)
+	UpdatePayment(payment *domain.Payment) error
 	
 	FindOrders(userID uint) ([]*domain.Order, error)
 	FindOrderByID(id, userID uint) (dto.SellerOrderDetails, error)
@@ -29,9 +30,9 @@ func NewTransactionRepository(db *gorm.DB) TransactionRepository {
 }
 
 
-func (r *transactionRepository) CreatePayment(payment domain.Payment) error {
+func (r *transactionRepository) CreatePayment(payment *domain.Payment) error {
 	
-	if err := r.db.Create(&payment).Error; err != nil {
+	if err := r.db.Create(payment).Error; err != nil {
 		log.Println("--> db_err CreatePayment: ", err)
 		return errors.New("error creating payment")
 	}
@@ -40,16 +41,33 @@ func (r *transactionRepository) CreatePayment(payment domain.Payment) error {
 }
 
 
-func (r *transactionRepository) FindActivePayment(userID uint) (domain.Payment, error) {
+func (r *transactionRepository) FindActivePayment(userID uint) (*domain.Payment, error) {
 	
-	payment := domain.Payment{}
+	payment := &domain.Payment{}
 	
-	if err := r.db.First(&payment, "user_id=? and status='initial'", userID).Error; err != nil {
+	if err := r.db.First(payment, "user_id=? and status='initial'", userID).Error; err != nil {
 		log.Println("--> db_err FindActivePayment: ", err)
-		return domain.Payment{}, errors.New("payment does not exist")
+		return nil, errors.New("payment does not exist")
 	}
 	
 	return payment, nil
+}
+
+
+func (r *transactionRepository) UpdatePayment(payment *domain.Payment) error {
+	
+	tx := r.db.Updates(payment)
+	
+	if err := tx.Error; err != nil {
+		log.Println("--> db_err UpdatePayment: ", err)
+		return errors.New("error updating payment")
+	}
+	
+	if tx.RowsAffected == 0 {
+		return errors.New("payment not found, error updating payment")
+	}
+	
+	return nil
 }
 
 
