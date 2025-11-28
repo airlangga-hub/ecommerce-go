@@ -249,8 +249,21 @@ func (s *UserService) UserBecomeSeller(id uint, input dto.SellerInput) (string, 
 }
 
 
-func (s *UserService) FindCart(userID uint) ([]*domain.CartItem, error) {
-	return s.Repo.FindCartItems(userID)
+func (s *UserService) FindCart(userID uint) ([]*domain.CartItem, float64, error) {
+	
+	cartItems, err := s.Repo.FindCartItems(userID)
+	
+	if err != nil {
+		return nil, 0, err
+	}
+	
+	var amount float64
+	
+	for _, item := range cartItems {
+		amount += item.Price * float64(item.Qty)
+	}
+	
+	return cartItems, amount, nil
 }
 
 
