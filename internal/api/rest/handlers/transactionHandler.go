@@ -58,6 +58,9 @@ func (h *TransactionHandler) MakePayment(ctx *fiber.Ctx) error {
 			"url": activePayment.PaymentURL,
 		})
 	}
+	if err != nil {
+		return rest.ErrorResponse(ctx, 500, err)
+	}
 	
 	_, amount, err := h.UserSvc.FindCart(user.ID)
 	if err != nil {
