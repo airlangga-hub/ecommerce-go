@@ -14,6 +14,7 @@ type Payment struct {
 	PaymentID		string				`json:"payment_id"`
 	Status			PaymentStatus		`json:"status" gorm:"default:initial"`
 	Response		string				`json:"response"`
+	PaymentURL		string				`json:"payment_url"`
 	CreatedAt		time.Time			`json:"created_at"`
 	UpdatedAt		time.Time			`json:"updated_at"`
 }
