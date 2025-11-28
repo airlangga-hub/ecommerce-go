@@ -17,6 +17,7 @@ type AppConfig struct {
 	TwilioAccountSid 	string
 	TwilioAuthToken 	string
 	StripeSecret		string
+	StripePubKey		string
 	SuccessURL			string
 	CancelURL			string
 }
@@ -67,6 +68,11 @@ func SetupEnv() (AppConfig, error) {
 		return AppConfig{}, errors.New("stripe secret env variable not found")
 	}
 	
+	stripePubKey := os.Getenv("STRIPE_PUB_KEY")
+	if stripePubKey == "" {
+		return AppConfig{}, errors.New("stripe pub key env variable not found")
+	}
+	
 	successURL := os.Getenv("SUCCESS_URL")
 	if successURL == "" {
 		return AppConfig{}, errors.New("success url env variable not found")
@@ -86,6 +92,7 @@ func SetupEnv() (AppConfig, error) {
 		TwilioAccountSid: twilioAccountSid,
 		TwilioAuthToken: twilioAuthToken,
 		StripeSecret: stripeSecret,
+		StripePubKey: stripePubKey,
 		SuccessURL: successURL,
 		CancelURL: cancelURL,
 		}, nil
