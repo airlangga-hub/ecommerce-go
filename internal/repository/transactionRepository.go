@@ -46,8 +46,13 @@ func (r *transactionRepository) FindActivePayment(userID uint) (*domain.Payment,
 	payment := &domain.Payment{}
 	
 	if err := r.db.First(payment, "user_id=? and status='initial'", userID).Error; err != nil {
+		
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		
 		log.Println("--> db_err FindActivePayment: ", err)
-		return nil, errors.New("payment does not exist")
+		return nil, errors.New("error finding payment")
 	}
 	
 	return payment, nil

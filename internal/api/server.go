@@ -12,12 +12,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 
 func StartServer(cfg *config.AppConfig) {
 
-	db, err := gorm.Open(postgres.Open(cfg.Dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(cfg.Dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 	if err != nil {
 		log.Fatal("error connecting to db: ", err)
 	}

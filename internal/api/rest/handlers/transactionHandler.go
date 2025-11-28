@@ -58,7 +58,7 @@ func (h *TransactionHandler) MakePayment(ctx *fiber.Ctx) error {
 	stripePubKey := h.UserSvc.Config.StripePubKey
 	
 	activePayment, err := h.Svc.GetActivePayment(user.ID)
-	if activePayment.ID > 0 {
+	if activePayment != nil {
 		return ctx.Status(200).JSON(fiber.Map{
 			"message": "create payment",
 			"stripe_pub_key": stripePubKey,
@@ -66,7 +66,7 @@ func (h *TransactionHandler) MakePayment(ctx *fiber.Ctx) error {
 		})
 	}
 	if err != nil {
-		return rest.ErrorResponse(ctx, 404, err)
+		return rest.ErrorResponse(ctx, 500, err)
 	}
 	
 	_, amount, err := h.UserSvc.FindCart(user.ID)
@@ -109,7 +109,7 @@ func (h *TransactionHandler) VerifyPayment(ctx *fiber.Ctx) error {
 	
 	// active payment exist?
 	activePayment, err := h.Svc.GetActivePayment(user.ID)
-	if err != nil || activePayment.ID == 0 {
+	if err != nil || activePayment == nil {
 		return ctx.Status(404).JSON(fiber.Map{
 			"error": "no active payment exists",
 		})
