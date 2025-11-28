@@ -10,6 +10,7 @@ import (
 
 type TransactionHandler struct {
 	Svc 			service.TransactionService
+	UserSvc			service.UserService
 	PaymentClient	payment.PaymentClient
 }
 
@@ -21,9 +22,16 @@ func SetupTransactionRoutes(rh *rest.HttpHandler) {
 		Repo: repository.NewTransactionRepository(rh.DB),
 		Auth: rh.Auth,
 	}
+	
+	userService := service.UserService{
+		Repo: repository.NewUserRepository(rh.DB),
+		CRepo: repository.NewCatalogRepository(rh.DB),
+		Config: rh.Config,
+	}
 
 	handler := &TransactionHandler{
 		Svc: transactionService,
+		UserSvc: userService,
 		PaymentClient: rh.PaymentClient,
 	}
 
@@ -39,6 +47,8 @@ func SetupTransactionRoutes(rh *rest.HttpHandler) {
 
 
 func (h *TransactionHandler) MakePayment(ctx *fiber.Ctx) error {
+	
+	user := h.Svc.Auth.GetCurrentUser(ctx)
 	
 	stripeCheckout, err := h.PaymentClient.CreatePayment(10, 123, 34)
 	
