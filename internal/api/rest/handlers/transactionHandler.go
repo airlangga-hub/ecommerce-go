@@ -51,18 +51,30 @@ func (h *TransactionHandler) MakePayment(ctx *fiber.Ctx) error {
 	
 	user := h.Svc.Auth.GetCurrentUser(ctx)
 	
+	activePayment, err := h.Svc.GetActivePayment(user.ID)
+	if activePayment.ID > 0 {
+		return ctx.Status(200).JSON(fiber.Map{
+			"message": "create payment",
+			"url": activePayment.PaymentURL,
+		})
+	}
+	
 	_, amount, err := h.UserSvc.FindCart(user.ID)
 	if err != nil {
 		return rest.ErrorResponse(ctx, 404, err)
 	}
 	
-	orderID, err := helper.RandomNumbers(8)
+	orderRef, err := helper.RandomNumbers(8)
 	if err != nil {
 		return rest.ErrorResponse(ctx, 500, err)
 	}
 	
-	stripeCheckout, err := h.PaymentClient.CreatePayment(amount, user.ID, orderID)	
+	stripeCheckout, err := h.PaymentClient.CreatePayment(amount, user.ID, orderRef)	
 	if err != nil {
+		return rest.ErrorResponse(ctx, 500, err)
+	}
+	
+	if err := h.Svc.SavePayment(user.ID, stripeCheckout, amount, orderRef); err != nil {
 		return rest.ErrorResponse(ctx, 500, err)
 	}
 	

@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/airlangga-hub/ecommerce-go/config"
@@ -293,12 +292,12 @@ func (s *UserService) CreateCart(input dto.CartRequest, userID uint) ([]*domain.
 }
 
 
-func (s *UserService) CreateOrder(userID uint) (uint, error) {
+func (s *UserService) CreateOrder(userID uint) (string, error) {
 	
 	// find cart items
 	cartItems, amount, err := s.FindCart(userID)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 	
 	// find success payment
@@ -306,11 +305,7 @@ func (s *UserService) CreateOrder(userID uint) (uint, error) {
 	paymentID := "IOEWQ231"
 	orderRef, err := helper.RandomNumbers(8)
 	if err != nil {
-		return 0, fmt.Errorf("error generating order ref: %v", err)
-	}
-	orderRefNum, err := strconv.ParseUint(orderRef, 10, 64)
-	if err != nil {
-		return 0, errors.New("error parsing order ref")
+		return "", fmt.Errorf("error generating order ref: %v", err)
 	}
 	
 	// create order with generated order ref number
@@ -333,22 +328,22 @@ func (s *UserService) CreateOrder(userID uint) (uint, error) {
 		Amount: amount,
 		OrderItems: orderItems,
 		TransactionID: txnID,
-		OrderRefNumber: uint(orderRefNum),
+		OrderRef: orderRef,
 		PaymentID: paymentID,
 	}
 	
 	if err := s.Repo.CreateOrder(order); err != nil {
-		return 0, err
+		return "", err
 	}
 	
 	// delete cart items
 	if err := s.Repo.DeleteCartItems(userID); err != nil {
-		return 0, err
+		return "", err
 	}
 	
 	// send email to user with order details
 	
-	return uint(orderRefNum), nil
+	return orderRef, nil
 }
 
 

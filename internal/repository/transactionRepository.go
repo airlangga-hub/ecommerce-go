@@ -12,7 +12,7 @@ import (
 
 type TransactionRepository interface{
 	CreatePayment(payment domain.Payment) error
-	FindPayment(userID uint) (domain.Payment, error)
+	FindActivePayment(userID uint) (domain.Payment, error)
 	
 	FindOrders(userID uint) ([]*domain.Order, error)
 	FindOrderByID(id, userID uint) (dto.SellerOrderDetails, error)
@@ -40,12 +40,12 @@ func (r *transactionRepository) CreatePayment(payment domain.Payment) error {
 }
 
 
-func (r *transactionRepository) FindPayment(userID uint) (domain.Payment, error) {
+func (r *transactionRepository) FindActivePayment(userID uint) (domain.Payment, error) {
 	
 	payment := domain.Payment{}
 	
-	if err := r.db.First(&payment, "user_id=? and status=initial", userID).Error; err != nil {
-		log.Println("--> db_err FindPayment: ", err)
+	if err := r.db.First(&payment, "user_id=? and status='initial'", userID).Error; err != nil {
+		log.Println("--> db_err FindActivePayment: ", err)
 		return domain.Payment{}, errors.New("payment does not exist")
 	}
 	

@@ -7,6 +7,7 @@ type Payment struct {
 	ID				uint				`json:"id" gorm:"primaryKey"`
 	UserID			uint				`json:"user_id"`
 	User			User				`json:"-"`
+	OrderRef		string				`json:"order_ref"`
 	CaptureMethod	string				`json:"capture_method"`
 	Amount			float64				`json:"amount"`
 	TransactionID	uint				`json:"transaction_id"`

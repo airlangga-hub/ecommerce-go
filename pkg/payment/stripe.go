@@ -11,7 +11,7 @@ import (
 
 
 type PaymentClient interface {
-	CreatePayment(amount float64, userID uint, orderID string) (*stripe.CheckoutSession, error)
+	CreatePayment(amount float64, userID uint, orderRef string) (*stripe.CheckoutSession, error)
 	GetPaymentStatus(paymentID string) (*stripe.CheckoutSession, error)
 }
 
@@ -32,7 +32,7 @@ func NewPaymentClient(stripeSecretKey, successURL, cancelURL string) PaymentClie
 }
 
 
-func (p *payment) CreatePayment(amount float64, userID uint, orderID string) (*stripe.CheckoutSession, error) {
+func (p *payment) CreatePayment(amount float64, userID uint, orderRef string) (*stripe.CheckoutSession, error) {
 	
 	stripe.Key = p.stripeSecretKey
 	
@@ -58,7 +58,7 @@ func (p *payment) CreatePayment(amount float64, userID uint, orderID string) (*s
 	}
 	
 	params.AddMetadata("user_id", fmt.Sprintf("%d", userID))
-	params.AddMetadata("order_id", orderID)
+	params.AddMetadata("order_id", orderRef)
 	
 	session, err := session.New(params)
 	
