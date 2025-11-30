@@ -99,6 +99,15 @@ func (h *TransactionHandler) MakePayment(ctx *fiber.Ctx) error {
 		"stripe_pub_key": stripePubKey,
 		"client_secret": paymentIntent.ClientSecret,
 	})
+	
+	// after making payment, run this cURL to make the payment status "succeeded"
+	
+	// curl https://api.stripe.com/v1/payment_intents/pi_xxx/confirm \
+	// -u sk_test_xxx: \
+	// -d payment_method=pm_card_visa \
+	// -d return_url="https://example.com"
+	
+	// Replace pi_xxx with your actual PaymentIntent ID and sk_test_xxx with your Stripe Secret Key.
 }
 
 
@@ -146,7 +155,7 @@ func (h *TransactionHandler) VerifyPayment(ctx *fiber.Ctx) error {
 		return rest.ErrorResponse(ctx, 500, err)
 	}
 	
-	return rest.OkResponse(ctx, "payment verified successfully", nil) 
+	return rest.OkResponse(ctx, "payment verified successfully", paymentIntent) 
 }
 
 
