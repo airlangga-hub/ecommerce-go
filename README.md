@@ -72,7 +72,7 @@ Register a new user.
 
 ### POST `/login`
 Authenticate user and return JWT token.
-- **Request Body**: `UserLogin` DTO (`email`, `password`)
+- **Request Body**: `UserLogin` DTO
 - **Public**: Yes
 - **Response**:
   - `200 OK`: `{ "message": "login success", "token": "jwt_token" }`
