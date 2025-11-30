@@ -18,7 +18,7 @@ The `database schema` can be found inside [domain](./internal/domain) directory
 ---
 
 # DTO
-To decode `request body`, please refer to [dto](./internal/dto) directory
+To parse `request body`, please refer to [dto](./internal/dto) directory
 
 ---
 
