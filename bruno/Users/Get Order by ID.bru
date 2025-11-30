@@ -1,0 +1,16 @@
+meta {
+  name: Get Order by ID
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{url}}/users/order/4
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

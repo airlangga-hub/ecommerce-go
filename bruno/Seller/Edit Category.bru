@@ -1,0 +1,25 @@
+meta {
+  name: Edit Category
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{url}}/seller/categories/5
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Earphone",
+    "parent_id": null,
+    "image_url": "earphone.jpg",
+    "display_order": null
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"strconv"
 
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest"
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
@@ -46,8 +47,8 @@ func SetupTransactionRoutes(rh *rest.HttpHandler) {
 
 	// seller endpoints
 	sellerRoutes := app.Group("/seller", handler.Svc.Auth.AuthorizeSeller)
-	sellerRoutes.Get("/order", handler.GetOrders)
-	sellerRoutes.Get("/order/:id", handler.GetOrderDetails)
+	sellerRoutes.Get("/order", handler.GetOrderItems)
+	sellerRoutes.Get("/order/:id", handler.GetOrderItemByID)
 }
 
 
@@ -107,7 +108,11 @@ func (h *TransactionHandler) MakePayment(ctx *fiber.Ctx) error {
 	// -d payment_method=pm_card_visa \
 	// -d return_url="https://example.com"
 	
-	// Replace pi_xxx with your actual PaymentIntent ID and sk_test_xxx with your Stripe Secret Key.
+	// Replace pi_xxx with your actual PaymentIntent.ID and sk_test_xxx with your Stripe Secret Key.
+	
+	// You can get PaymentIntent.ID from the response body's client_secret field
+	// It's the string before "_secret_", see:
+	// <PaymentIntent.ID>_secret_MrnrbxPKRzDvtdEwu6UGlZRpX
 }
 
 
@@ -159,17 +164,33 @@ func (h *TransactionHandler) VerifyPayment(ctx *fiber.Ctx) error {
 }
 
 
-func (h *TransactionHandler) GetOrders(ctx *fiber.Ctx) error {
+func (h *TransactionHandler) GetOrderItems(ctx *fiber.Ctx) error {
+	
+	user := h.Svc.Auth.GetCurrentUser(ctx)
+	
+	orderItems, err := h.Svc.GetOrderItems(user.ID)
+	if err != nil {
+		return rest.ErrorResponse(ctx, 404, err)
+	}
 	
 	return ctx.Status(200).JSON(fiber.Map{
 		"message": "get orders success",
+		"orders": orderItems,
 	})
 }
 
 
-func (h *TransactionHandler) GetOrderDetails(ctx *fiber.Ctx) error {
+func (h *TransactionHandler) GetOrderItemByID(ctx *fiber.Ctx) error {
+	
+	id, _ := strconv.Atoi(ctx.Params("id"))
+	
+	orderItem, err := h.Svc.GetOrderItemByID(uint(id))
+	if err != nil {
+		return rest.ErrorResponse(ctx, 404, err)
+	}
 	
 	return ctx.Status(200).JSON(fiber.Map{
 		"message": "get order details success",
+		"order": orderItem,
 	})
 }

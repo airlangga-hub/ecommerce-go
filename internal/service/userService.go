@@ -35,7 +35,7 @@ func (s *UserService) SignUp(input dto.UserSignUp) (string, error) {
 		},
 	)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return s.Auth.GenerateToken(user.ID, user.Email, user.UserType)

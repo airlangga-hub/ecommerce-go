@@ -1,0 +1,15 @@
+meta {
+  name: Get Order Items
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{url}}/seller/order
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

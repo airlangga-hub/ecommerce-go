@@ -1,0 +1,11 @@
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+vars:pre-request {
+  url: http://localhost:9000
+}

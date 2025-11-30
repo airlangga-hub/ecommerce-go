@@ -28,3 +28,15 @@ func (s *TransactionService) UpdatePayment(payment *domain.Payment) error {
 		
 	return s.Repo.UpdatePayment(payment)
 }
+
+
+func (s *TransactionService) GetOrderItems(sellerID uint) ([]*domain.OrderItem, error) {
+	
+	return s.Repo.FindOrderItems(sellerID)
+}
+
+
+func (s *TransactionService) GetOrderItemByID(id uint) (domain.OrderItem, error) {
+	
+	return s.Repo.FindOrderItemByID(id)
+}

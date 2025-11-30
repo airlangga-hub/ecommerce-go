@@ -58,9 +58,15 @@ func (s *CatalogService) GetCategoryByID(id uint) (*domain.Category, error) {
 
 func (s *CatalogService) EditCategory(id uint, input dto.CreateCategoryRequest) (*domain.Category, error) {
 
+	var parentID *uint
+	if input.ParentID != 0 {
+		parentID = &input.ParentID
+	}
+	
 	category := &domain.Category{
+		ID: id,
 		Name: input.Name,
-		ParentID: &input.ParentID,
+		ParentID: parentID,
 		ImageURL: input.ImageURL,
 		DisplayOrder: input.DisplayOrder,
 	}
@@ -113,16 +119,24 @@ func (s *CatalogService) GetProductByID(id uint) (domain.Product, error) {
 }
 
 
+func (s *CatalogService) GetSellerProducts(sellerID uint) ([]*domain.Product, error) {
+
+	products, err := s.Repo.FindSellerProducts(sellerID)
+
+	return products, err
+}
+
+
 func (s *CatalogService) EditProduct(id uint, input dto.CreateProduct) (domain.Product, error) {
 
 	product := domain.Product{
+		ID: id,
 		Name: input.Name,
 		Description: input.Description,
 		CategoryID: input.CategoryID,
 		ImageURL: input.ImageURL,
 		Price: input.Price,
 		Stock: input.Stock,
-		UserID: id,		
 	}
 
 	product, err := s.Repo.EditProduct(product)

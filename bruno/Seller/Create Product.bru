@@ -1,0 +1,27 @@
+meta {
+  name: Create Product
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{url}}/seller/products
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "samsung watch",
+    "description": "samsung smart watch 2023",
+    "category_id": 10,
+    "image_url": "samsung_watch.jpg",
+    "price": 343,
+    "stock": 50
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

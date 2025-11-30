@@ -1,0 +1,27 @@
+meta {
+  name: Edit Product
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{url}}/seller/products/18
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "",
+    "description": "",
+    "category_id": null,
+    "image_url": "",
+    "price": 245,
+    "stock": null
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

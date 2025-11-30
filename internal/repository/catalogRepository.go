@@ -6,6 +6,7 @@ import (
 
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 
@@ -80,7 +81,7 @@ func (cr *catalogRepository) FindCategoryByID(id uint) (*domain.Category, error)
 
 func (cr *catalogRepository) EditCategory(c *domain.Category) (*domain.Category, error) {
 
-	tx := cr.db.Updates(c)
+	tx := cr.db.Clauses(clause.Returning{}).Updates(c)
 
 	if err := tx.Error; err != nil {
 		log.Print(" --> db_err EditCategory: ", err)
@@ -176,9 +177,7 @@ func (cr *catalogRepository) FindSellerProducts(id uint) ([]*domain.Product, err
 
 func (cr *catalogRepository) EditProduct(p domain.Product) (domain.Product, error) {
 
-	updated := domain.Product{}
-
-	tx := cr.db.Updates(p).Scan(&updated)
+	tx := cr.db.Clauses(clause.Returning{}).Updates(&p)
 
 	if err := tx.Error; err != nil {
 		log.Print(" --> db_err EditProduct: ", err)
@@ -189,7 +188,7 @@ func (cr *catalogRepository) EditProduct(p domain.Product) (domain.Product, erro
 		return domain.Product{}, errors.New("product not found, failed to update")
 	}
 
-	return updated, nil
+	return p, nil
 }
 
 

@@ -1,0 +1,22 @@
+meta {
+  name: Update Stock
+  type: http
+  seq: 8
+}
+
+patch {
+  url: {{url}}/seller/products/18
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "stock":180
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

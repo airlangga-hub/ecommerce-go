@@ -41,7 +41,7 @@ func SetupCatalogRoutes(rh *rest.HttpHandler) {
 	sellerRoutes.Delete("/categories/:id", handler.DeleteCategory)
 
 	sellerRoutes.Post("/products", handler.CreateProduct)
-	sellerRoutes.Get("/products", handler.GetProducts)
+	sellerRoutes.Get("/products", handler.GetSellerProducts)
 	sellerRoutes.Get("/products/:id", handler.GetProductByID)
 	sellerRoutes.Put("/products/:id", handler.EditProduct)
 	sellerRoutes.Patch("/products/:id", handler.UpdateStock) // update stock
@@ -161,6 +161,20 @@ func (h *CatalogHandler) GetProductByID(ctx *fiber.Ctx) error {
 	}
 
 	return rest.OkResponse(ctx, "get product by id success", product)
+}
+
+
+func (h *CatalogHandler) GetSellerProducts(ctx *fiber.Ctx) error {
+	
+	user := h.Svc.Auth.GetCurrentUser(ctx)
+
+	products, err := h.Svc.GetSellerProducts(user.ID)
+
+	if err != nil {
+		return rest.ErrorResponse(ctx, 404, err)
+	}
+
+	return rest.OkResponse(ctx, "get products success", products)
 }
 
 

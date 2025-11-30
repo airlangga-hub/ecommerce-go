@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
-	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +15,10 @@ type TransactionRepository interface{
 	UpdatePayment(payment *domain.Payment) error
 	
 	FindOrders(userID uint) ([]*domain.Order, error)
-	FindOrderByID(id, userID uint) (dto.SellerOrderDetails, error)
+	FindOrderByID(id, userID uint) (domain.Order, error)
+	
+	FindOrderItems(sellerID uint) ([]*domain.OrderItem, error)
+	FindOrderItemByID(id uint) (domain.OrderItem, error)
 }
 
 
@@ -95,14 +97,46 @@ func (r *transactionRepository) FindOrders(userID uint) ([]*domain.Order, error)
 }
 
 
-func (r *transactionRepository) FindOrderByID(id, userID uint) (dto.SellerOrderDetails, error) {
+func (r *transactionRepository) FindOrderByID(id, userID uint) (domain.Order, error) {
 	
-	order := domain.Order{}
+	order := domain.Order{ID: id}
 	
-	if err := r.db.First(&order, "id=? and user_id=?", id, userID).Error; err != nil {
+	if err := r.db.First(&order, "user_id=?", userID).Error; err != nil {
 		log.Println("--> db_err FindOrderByID: ", err)
-		return dto.SellerOrderDetails{}, errors.New("error finding order by id")
+		return domain.Order{}, errors.New("error finding order by id")
 	}
 	
-	return dto.SellerOrderDetails{}, nil
+	return order, nil
+}
+
+
+func (r *transactionRepository) FindOrderItems(sellerID uint) ([]*domain.OrderItem, error) {
+	
+	orderItems := []*domain.OrderItem{}
+	
+	tx := r.db.Find(&orderItems, "seller_id=?", sellerID)
+	
+	if err := tx.Error; err != nil {
+		log.Println("--> db_err FindOrderItems: ", err)
+		return nil, errors.New("couldn't find order items")
+	}
+	
+	if tx.RowsAffected == 0 {
+		return nil, errors.New("no order items found")
+	}
+	
+	return orderItems, nil
+}
+
+
+func (r *transactionRepository) FindOrderItemByID(id uint) (domain.OrderItem, error) {
+
+	orderItem := domain.OrderItem{ID: id}
+	
+	if err := r.db.First(&orderItem).Error; err != nil {
+		log.Println("--> db_err FindOrderItemByID: ", err)
+		return domain.OrderItem{}, errors.New("couldn't find order item")
+	}
+	
+	return orderItem, nil
 }

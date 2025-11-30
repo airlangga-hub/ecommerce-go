@@ -1,0 +1,25 @@
+meta {
+  name: Create Category
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{url}}/seller/categories
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Blender",
+    "parent_id": 8,
+    "image_url": "blender.jpg",
+    "display_order": 69
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
