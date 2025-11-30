@@ -238,12 +238,16 @@ Verify payment status with Stripe and finalize order if succeeded.
 All seller transaction endpoints require `AuthorizeSeller` middleware.
 
 #### GET `/seller/order`
-Fetch seller’s orders (placeholder — returns stub).
+Fetch all order items associated with the seller.
 - **Response**:
-  - `200 OK`: `{ "message": "get orders success" }`
+  - `200 OK`: `{ "message": "get orders success", "data": [OrderItemResponse, ...] }`
+  - `404 Not Found`: No order items found for the seller
+  - `500 Internal Server Error`: Database query failed
 
 #### GET `/seller/order/:id`
-Fetch seller’s specific order by ID (placeholder — returns stub).
+Fetch a specific order item by ID (must belong to the authenticated seller).
 - **Path Param**: `id` (uint)
 - **Response**:
-  - `200 OK`: `{ "message": "get order details success" }`
+  - `200 OK`: `{ "message": "get order details success", "data": OrderItemResponse }`
+  - `404 Not Found`: Order item not found or does not belong to seller
+  - `500 Internal Server Error`: Database query failed
