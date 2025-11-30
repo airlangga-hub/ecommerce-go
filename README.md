@@ -22,6 +22,11 @@ To decode `request body`, please refer to [dto](./internal/dto) directory
 
 ---
 
+# API Client
+I used [bruno](https://www.usebruno.com/), the collection can be found inside the [bruno directory](./bruno)
+
+---
+
 # Environment Variables
 ```bash
 HTTP_PORT=localhost:9000
