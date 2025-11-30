@@ -1,3 +1,62 @@
+# E-commerce Go
+This is an e-commerce backend server written in Go. It has 3 layers:
+* Handlers
+* Service
+* Repository & Auth
+
+Data flows from `handlers` &rarr; `service` &rarr; `repository` or `auth` &rarr; `database` and then back.
+
+---
+
+# Database
+This project uses a `containerized PostgreSQL` which is configured inside [docker-compose.yaml](./docker-compose.yaml).
+
+All `database operations` are managed with [gorm](https://gorm.io/index.html).
+
+The `database schema` can be found inside [domain](./internal/domain) directory
+
+---
+
+# DTO
+To decode `request body`, please refer to [dto](./internal/dto) directory
+
+---
+
+# Environment Variables
+```bash
+HTTP_PORT=localhost:9000
+
+DSN=host=127.0.0.1 user=root password=root dbname=online-shopping port=7070 sslmode=disable # you can change it from docker-compose.yaml
+
+APP_SECRET= # set to whatever you want
+
+TWILIO_ACCOUNT_SID= # from twilio, you can omit it from appConfig.go
+TWILIO_AUTH_TOKEN= # from twilio, you can omit it from appConfig.go
+TWILIO_PHONE_NUMBER= # from twilio, you can omit it from appConfig.go
+MY_PHONE_NUMBER= # your phone number, you can omit it from appConfig.go
+
+STRIPE_SECRET= # from stripe
+STRIPE_PUB_KEY= # from stripe
+
+SUCCESS_URL=http://localhost:3000/success # or set to whatever you want
+CANCEL_URL=http://localhost:3000/cancel # or set to whatever you want
+```
+
+---
+
+# Running The App
+First, docker compose to start the `PostgreSQL` database:
+```bash
+docker compose up -d
+```
+
+Then, start the server:
+```bash
+APP_ENV=dev go run .
+```
+
+---
+
 # API Endpoints
 
 ## Authentication
