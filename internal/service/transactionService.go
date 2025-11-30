@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
-	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"github.com/airlangga-hub/ecommerce-go/internal/helper"
 	"github.com/airlangga-hub/ecommerce-go/internal/repository"
 )
@@ -14,16 +13,7 @@ type TransactionService struct{
 }
 
 
-func (s *TransactionService) SavePayment(input dto.CreatePayment) error {
-	 
-	payment := &domain.Payment{
-		UserID: input.UserID,
-		OrderRef: input.OrderRef,
-		Amount: input.Amount,
-		Status: domain.PaymentStatusInitial, 
-		PaymentID: input.PaymentID,
-		ClientSecret: input.ClientSecret,
-	}
+func (s *TransactionService) SavePayment(payment *domain.Payment) error {
 	
 	return s.Repo.CreatePayment(payment)
 }

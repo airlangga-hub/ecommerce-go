@@ -5,7 +5,6 @@ import (
 
 	"github.com/airlangga-hub/ecommerce-go/internal/api/rest"
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
-	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"github.com/airlangga-hub/ecommerce-go/internal/helper"
 	"github.com/airlangga-hub/ecommerce-go/internal/repository"
 	"github.com/airlangga-hub/ecommerce-go/internal/service"
@@ -84,12 +83,13 @@ func (h *TransactionHandler) MakePayment(ctx *fiber.Ctx) error {
 		return rest.ErrorResponse(ctx, 500, err)
 	}
 	
-	if err := h.Svc.SavePayment(dto.CreatePayment{
+	if err := h.Svc.SavePayment(&domain.Payment{
 		UserID: user.ID,
-		Amount: amount,
-		ClientSecret: paymentIntent.ClientSecret,
-		PaymentID: paymentIntent.ID,
 		OrderRef: orderRef,
+		Amount: amount,
+		Status: domain.PaymentStatusInitial, 
+		PaymentID: paymentIntent.ID,
+		ClientSecret: paymentIntent.ClientSecret,
 	}); err != nil {
 		return rest.ErrorResponse(ctx, 500, err)
 	}
