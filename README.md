@@ -13,12 +13,12 @@ This project uses a `containerized PostgreSQL` which is configured inside [docke
 
 All `database operations` are managed with [gorm](https://gorm.io/index.html).
 
-The `database schema` can be found inside [domain](./internal/domain) directory
+The `database schema` can be found inside [domain directory](./internal/domain).
 
 ---
 
 # DTO
-To parse `request body`, please refer to [dto](./internal/dto) directory
+To parse `request body`, please refer to [dto directory](./internal/dto).
 
 ---
 
