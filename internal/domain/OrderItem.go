@@ -6,7 +6,7 @@ import "time"
 type OrderItem struct {
 	ID				uint			`json:"id" gorm:"primaryKey"`
 	OrderID			uint			`json:"order_id"`
-	Order			Order			`json:"-"`
+	Order			Order			`json:"order"`
 	ProductID		uint			`json:"product_id"`
 	Product			Product			`json:"-"`
 	SellerID		uint			`json:"seller_id"`

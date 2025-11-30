@@ -114,7 +114,7 @@ func (r *transactionRepository) FindOrderItems(sellerID uint) ([]*domain.OrderIt
 	
 	orderItems := []*domain.OrderItem{}
 	
-	tx := r.db.Find(&orderItems, "seller_id=?", sellerID)
+	tx := r.db.Preload("Order.User").Find(&orderItems, "seller_id=?", sellerID)
 	
 	if err := tx.Error; err != nil {
 		log.Println("--> db_err FindOrderItems: ", err)

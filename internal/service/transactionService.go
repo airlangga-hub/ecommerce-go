@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/airlangga-hub/ecommerce-go/internal/domain"
+	"github.com/airlangga-hub/ecommerce-go/internal/dto"
 	"github.com/airlangga-hub/ecommerce-go/internal/helper"
 	"github.com/airlangga-hub/ecommerce-go/internal/repository"
 )
@@ -30,9 +31,34 @@ func (s *TransactionService) UpdatePayment(payment *domain.Payment) error {
 }
 
 
-func (s *TransactionService) GetOrderItems(sellerID uint) ([]*domain.OrderItem, error) {
+func (s *TransactionService) GetOrderItems(sellerID uint) ([]*dto.OrderItemResponse, error) {
 	
-	return s.Repo.FindOrderItems(sellerID)
+	orderItems, err := s.Repo.FindOrderItems(sellerID)
+	if err != nil {
+		return nil, err
+	}
+	
+	orderItemResp := []*dto.OrderItemResponse{}
+	
+	for _, item := range orderItems {
+		
+		orderItemDto := &dto.OrderItemResponse{
+			Name: item.Name,
+			ImageURL: item.ImageURL,
+			Price: item.Price,
+			Qty: item.Qty,
+			CreatedAt: item.CreatedAt,
+			UpdatedAt: item.UpdatedAt,
+		}
+		orderItemDto.Buyer.ID = item.Order.UserID
+		orderItemDto.Buyer.Name = item.Order.User.FirstName + " " + item.Order.User.LastName
+		orderItemDto.Buyer.Email = item.Order.User.Email
+		orderItemDto.Buyer.Phone = item.Order.User.Phone
+		
+		orderItemResp = append(orderItemResp, orderItemDto)
+	}
+	
+	return orderItemResp, nil
 }
 
 
