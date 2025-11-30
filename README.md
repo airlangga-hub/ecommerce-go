@@ -23,7 +23,7 @@ To parse `request body`, please refer to [dto directory](./internal/dto).
 ---
 
 # API Client
-I used [bruno](https://www.usebruno.com/), the collection can be found inside the [bruno directory](./bruno)
+I used [bruno](https://www.usebruno.com/), the collection can be found inside the [bruno directory](./bruno).
 
 ---
 
