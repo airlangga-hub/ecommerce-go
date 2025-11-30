@@ -133,7 +133,7 @@ func (r *transactionRepository) FindOrderItemByID(id uint) (domain.OrderItem, er
 
 	orderItem := domain.OrderItem{ID: id}
 	
-	if err := r.db.First(&orderItem).Error; err != nil {
+	if err := r.db.Preload("Order.User").First(&orderItem).Error; err != nil {
 		log.Println("--> db_err FindOrderItemByID: ", err)
 		return domain.OrderItem{}, errors.New("couldn't find order item")
 	}
